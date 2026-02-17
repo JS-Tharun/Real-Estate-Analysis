@@ -48,11 +48,28 @@ from property_price
 group by fur_status
 order by Avg_House_Price desc;
 
+-- avg price based on city as well
+
+with cost_table as(
+select
+    p.furnishing_status as fur_stat,
+    l.city as city,
+    l.price as price
+from property_attributes p
+inner join listings l
+on p.listing_id=l.listing_id)
+select
+	city,
+	fur_stat,
+    round(avg(price), 2) as avg_price
+from cost_table
+group by
+	city,
+    fur_stat
+order by
+	city,
+    fur_stat;
+
 -- Q4. Do properties closer to metro stations command higher prices?
-select 
-	*
-from listings l
-inner join property_attributes p
-on p.listing_id = l.listing_id
-order by metro_distance;
+
 
