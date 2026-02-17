@@ -1,3 +1,4 @@
+-- SQLBook: Code
 show databases;
 
 use real_estate;
@@ -71,5 +72,24 @@ order by
     fur_stat;
 
 -- Q4. Do properties closer to metro stations command higher prices?
+SELECT
+    CASE 
+        WHEN p.metro_distance <= 10 THEN 'Less Than 10'
+        ELSE 'More Than 10'
+    END AS Distance_KM,
+    
+    COUNT(*) AS Total_Properties,
+    ROUND(AVG(p.metro_distance), 2) AS Avg_Distance,
+    ROUND(AVG(l.price), 2) AS Avg_Price
+
+FROM property_attributes p
+INNER JOIN listings l
+    ON p.listing_id = l.listing_id
+
+GROUP BY 
+    CASE 
+        WHEN p.metro_distance <= 10 THEN 'Less Than 10'
+        ELSE 'More Than 10'
+    END;
 
 
