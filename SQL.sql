@@ -104,6 +104,9 @@ group by
 order by
 	City,
 	Avg_Price desc;
+    
+    
+    
 
 -- Q4. Do properties closer to metro stations command higher prices?
 SELECT
@@ -131,7 +134,32 @@ Order by
 	City,
 	Avg_Price;
     
--- alt version
+-- alt version (currently in use)
+
+SELECT
+	CASE
+		when p.metro_distance <= 2 then '0-2'
+		when p.metro_distance <= 5 && p.metro_distance > 2 then '2-5'
+		when p.metro_distance <= 10 && p.metro_distance > 5 then '5-10'
+		when p.metro_distance <= 15 && p.metro_distance > 10 then '10-15'
+		else '15+'
+	END AS Metro_Distance_In_KM,
+	
+	COUNT(*) AS Total_Properties,
+    min(l.price) as Min_Price,
+    max(l.price) as Max_Price,
+    ROUND(AVG(l.price), 2) AS Avg_Price
+	
+FROM property_attributes p
+INNER JOIN listings l
+	ON p.listing_id = l.listing_id
+
+GROUP BY 
+	Metro_Distance_In_KM
+ORDER BY 
+	Min_Price;
+
+-- based on city (currently in use)
 SELECT
 	l.city as City,
     CASE
@@ -143,6 +171,8 @@ SELECT
     END AS Metro_Distance_In_KM,
     
     COUNT(*) AS Total_Properties,
+    min(l.price) as Min_Price,
+    max(l.price) as Max_Price,
     ROUND(AVG(l.price), 2) AS Avg_Price
     
 FROM property_attributes p
@@ -154,20 +184,107 @@ GROUP BY
     Metro_Distance_In_KM
 ORDER BY
 	City,
-    Avg_Price desc;
+    Min_Price;
+    
+    
+    
 
+-- Q5. Are rented properties priced differently from non-rented ones?
 
--- Q5. Are rented properties priced differently from non-rented ones?     
+-- only rent status (Currently in use)
+select 
+
+	case
+		when is_rented is True then 'Yes'
+		else 'No'
+	end as Property_Rented,
+    count(*) as Total_Properties,
+    min(l.Price) as Min_Price,
+    max(l.Price) as Max_Price,
+    round(avg(l.Price), 2) as Avg_Price
+    
+FROM property_attributes p
+INNER JOIN listings l
+    ON p.listing_id = l.listing_id
+    
+group by
+	Property_Rented;
+    
+-- based on furnishing status (Currently in Use)
+
+select 
+
+	case
+		when is_rented is True then 'Yes'
+		else 'No'
+	end as Property_Rented,
+    p.Furnishing_Status as Furnishing_Status,
+    count(*) as Total_Properties,
+    min(l.Price) as Min_Price,
+    max(l.Price) as Max_Price,
+    round(avg(l.Price), 2) as Avg_Price
+    
+FROM property_attributes p
+INNER JOIN listings l
+    ON p.listing_id = l.listing_id
+    
+group by
+	Furnishing_Status,
+	Property_Rented
+order by
+	Property_Rented,
+    Avg_Price;
+
+     
 
 
 -- Q6. How do bedrooms and bathrooms affect pricing?
+
+-- Only bedroom (Currently in Use)
+select 
+
+	p.Bedroom as Bedroom_Count,
+    count(*) as Total_Properties,
+    min(l.price) as Min_Price,
+    max(l.price) as Max_Price,
+    round(avg(l.price), 2) as Avg_Price
+    
+FROM property_attributes p
+INNER JOIN listings l
+    ON p.listing_id = l.listing_id
+    
+group by
+	Bedroom_Count
+order by
+	bedroom_count;
+    
+-- only bathroom (Currently in Use)
+select 
+
+	p.bathroom as Bathroom_Count,
+    count(*) as Total_Properties,
+    min(l.price) as Min_Price,
+    max(l.price) as Max_Price,
+    round(avg(l.price), 2) as Avg_Price
+    
+FROM property_attributes p
+INNER JOIN listings l
+    ON p.listing_id = l.listing_id
+
+group by
+	Bathroom_Count
+order by
+	Bathroom_Count;
+
+-- both bedroom and bathroom (Currently in Use)
 select
 
 	p.bedroom as Bedroom_Count,
     p.bathroom as Bathroom_Count,
-    round(avg(l.price), 2) as Avg_Price,
+    count(*) as Total_Properties,
     min(l.price) as Min_Price,
-    max(l.price) as Max_Price
+    max(l.price) as Max_Price,
+    round(avg(l.price), 2) as Avg_Price
 
 FROM property_attributes p
 INNER JOIN listings l
@@ -177,7 +294,11 @@ group by
 	bedroom,
     bathroom
 order by
-    Avg_Price desc;
+	Bedroom_Count,
+    Bathroom_Count;
+    
+    
+    
     
 -- Q7. Do properties with parking and power backup sell at higher prices?
 
@@ -201,11 +322,12 @@ order by
     
 -- power backup only
 select
-	count(*) as Total_Properties,
+	
 	case
 		when p.power_backup is True then 'Yes'
         else 'No'
 	end as Power_Backup_Available,
+    count(*) as Total_Properties,
     round(avg(l.price), 2) as Avg_Price,
     min(l.price) as Min_Price,
     max(l.price) as Max_Price
@@ -216,9 +338,36 @@ group by
 	Power_Backup_Available
 order by
 	Avg_Price desc;
+    
+-- both parking and power together (Currently in Use)
 
+select
 
--- both parking and power together with city
+	case
+			when p.parking_available is True then 'Yes'
+			else 'No'
+		end as Parking_Available,
+	case
+		when p.power_backup is True then 'Yes'
+        else 'No'
+	end as Power_Backup_Available,
+    count(*) as Total_Properties,
+    round(avg(l.price), 2) as Avg_Price,
+    min(l.price) as Min_Price,
+    max(l.price) as Max_Price
+	
+FROM property_attributes p
+INNER JOIN listings l
+    ON p.listing_id = l.listing_id
+    
+group by
+	Parking_Available,
+    Power_Backup_Available
+order by
+	Parking_Available,
+    Power_Backup_Available;
+
+-- both parking and power together based on city
 select 
 	l.city as City,
     case
@@ -242,5 +391,24 @@ group by
     Power_Backup
 order by
 	City,
-    Avg_Price desc;
+    Parking_Available,
+    Power_Backup;
+    
+-- Q8. How does year built influence listing price?
+select
+
+	p.Year_Built as Year_Built,
+    count(*) as Total_Properties,
+    round(avg(l.Price), 2) as Avg_Price,
+    min(l.Price) as Min_Price,
+    max(l.Price) as Max_Price
+    
+FROM property_attributes p
+INNER JOIN listings l
+    ON p.listing_id = l.listing_id
+    
+group by
+	Year_Built
+order by
+	Year_Built;
 
