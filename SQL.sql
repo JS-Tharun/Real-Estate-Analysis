@@ -44,10 +44,26 @@ left join property_attributes p
 on l.listing_ID = p.listing_id)
 select
 	fur_status as Furnishing_Status,
+    count(*) as Total_Properties,
     round(avg(price), 2) as Avg_House_Price
 from property_price
 group by fur_status
 order by Avg_House_Price desc;
+
+-- alt version
+select 
+	p.furnishing_status as Furnishing_Status,
+    count(*) as Total_Properties,
+    round(avg(l.price), 2) as Avg_Price,
+    min(l.price) as Min_Price,
+    max(l.price) as Max_Price
+from listings l
+left join property_attributes p
+on l.listing_ID = p.listing_id
+group by
+	Furnishing_Status
+order by
+	Avg_Price desc;
 
 -- avg price based on city as well
 
@@ -70,9 +86,28 @@ group by
 order by
 	city,
     fur_stat;
+    
+-- alt version
+select
+	l.city as City,
+	p.furnishing_status as Furnishing_Status,
+    count(*) as Total_Properties,
+    round(avg(l.price), 2) as Avg_Price,
+    min(l.price) as Min_Price,
+    max(l.price) as Max_Price
+from listings l
+left join property_attributes p
+on l.listing_ID = p.listing_id
+group by
+	City,
+	Furnishing_Status
+order by
+	City,
+	Avg_Price desc;
 
 -- Q4. Do properties closer to metro stations command higher prices?
 SELECT
+	l.city as City,
     CASE 
         WHEN p.metro_distance <= 10 THEN 'Less Than 10'
         ELSE 'More Than 10'
@@ -86,10 +121,126 @@ FROM property_attributes p
 INNER JOIN listings l
     ON p.listing_id = l.listing_id
 
-GROUP BY 
+GROUP BY
+	City,
     CASE 
         WHEN p.metro_distance <= 10 THEN 'Less Than 10'
         ELSE 'More Than 10'
-    END;
+    END
+Order by
+	City,
+	Avg_Price;
+    
+-- alt version
+SELECT
+	l.city as City,
+    CASE
+        when p.metro_distance <= 2 then '0-2'
+        when p.metro_distance <= 5 && p.metro_distance > 2 then '2-5'
+        when p.metro_distance <= 10 && p.metro_distance > 5 then '5-10'
+        when p.metro_distance <= 15 && p.metro_distance > 10 then '10-15'
+        else '15+'
+    END AS Metro_Distance_In_KM,
+    
+    COUNT(*) AS Total_Properties,
+    ROUND(AVG(l.price), 2) AS Avg_Price
+    
+FROM property_attributes p
+INNER JOIN listings l
+    ON p.listing_id = l.listing_id
 
+GROUP BY 
+	City,
+    Metro_Distance_In_KM
+ORDER BY
+	City,
+    Avg_Price desc;
+
+
+-- Q5. Are rented properties priced differently from non-rented ones?     
+
+
+-- Q6. How do bedrooms and bathrooms affect pricing?
+select
+
+	p.bedroom as Bedroom_Count,
+    p.bathroom as Bathroom_Count,
+    round(avg(l.price), 2) as Avg_Price,
+    min(l.price) as Min_Price,
+    max(l.price) as Max_Price
+
+FROM property_attributes p
+INNER JOIN listings l
+    ON p.listing_id = l.listing_id
+    
+group by
+	bedroom,
+    bathroom
+order by
+    Avg_Price desc;
+    
+-- Q7. Do properties with parking and power backup sell at higher prices?
+
+-- parking only
+select
+	case
+		when p.parking_available is True then 'Yes'
+		else 'No'
+	end as Parking_Available,
+	count(*) as Total_Properties,
+	round(avg(l.price), 2) as Avg_Price,
+	min(l.price) as Min_Price,
+	max(l.price) as Max_Price
+FROM property_attributes p
+INNER JOIN listings l
+	ON p.listing_id = l.listing_id
+group by
+	Parking_Available
+order by
+	Avg_Price desc;
+    
+-- power backup only
+select
+	count(*) as Total_Properties,
+	case
+		when p.power_backup is True then 'Yes'
+        else 'No'
+	end as Power_Backup_Available,
+    round(avg(l.price), 2) as Avg_Price,
+    min(l.price) as Min_Price,
+    max(l.price) as Max_Price
+FROM property_attributes p
+INNER JOIN listings l
+    ON p.listing_id = l.listing_id
+group by
+	Power_Backup_Available
+order by
+	Avg_Price desc;
+
+
+-- both parking and power together with city
+select 
+	l.city as City,
+    case
+		when p.parking_available is True then 'Yes'
+        else 'No'
+	end as Parking_Available,
+    case
+		when p.power_backup is True then 'Yes'
+        else 'No'
+	end as Power_Backup,
+    count(*) as Total_Properties,
+    round(avg(l.price), 2) as Avg_Price,
+    min(l.price) as Min_Price,
+    max(l.price) as Max_Price
+FROM property_attributes p
+INNER JOIN listings l
+    ON p.listing_id = l.listing_id
+group by
+	City,
+    Parking_Available,
+    Power_Backup
+order by
+	City,
+    Avg_Price desc;
 
