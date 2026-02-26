@@ -535,6 +535,9 @@ CASE T3.Price_Bucket
 END;
 
 
+
+
+
 -- Sales & Market Performance Analysis
 
 -- Q11. What is the average days on market by city?
@@ -548,3 +551,114 @@ group by
 	l.City
 order by
 	City;
+    
+    
+    
+    
+    
+-- Q12. Which property types sell the fastest?
+select
+	l.Property_Type,
+    round(avg(s.Days_On_Market), 0) as Avg_Price,
+    min(s.Days_On_Market) as Min_Days_On_Market,
+    max(s.Days_On_Market) as Max_Days_On_Market
+from sales s
+inner join listings l
+on s.Listing_ID = l.Listing_ID
+group by
+	l.Property_Type
+order by
+	Avg_Price;
+    
+    
+    
+    
+    
+-- Q13. What percentage of properties are sold above listing price?
+select
+	case 
+		when s.Sale_Price > l.Price then 'Above Listed Price'
+        when s.Sale_Price <= l.Price then 'Equal and Below Listed Price'
+	end as Property_Sold_At,
+	count(*) as Property_Count,
+    round(( 100 * count(*)) / (select count(*) as Total_Properties
+		from sales s
+		inner join listings l
+		on s.Listing_ID = l.Listing_ID), 2) Percentage_Sold
+from sales s
+inner join listings l
+on s.Listing_ID = l.Listing_ID
+group by
+	Property_Sold_At;
+    
+    
+    
+    
+    
+-- Q14. What is the sale-to-list price ratio by city?
+with Price_Table as (select
+	l.City,
+	avg(s.Sale_Price) as Avg_Sale_Price,
+    avg(l.Price) as Avg_List_Price
+from sales s
+inner join listings l
+on s.Listing_ID = l.Listing_ID
+group by
+	City)
+select
+	City,
+    round(Avg_Sale_Price/Avg_List_Price, 4) as Sale_To_List_Price_Ratio
+from Price_Table
+order by
+	City;
+    
+    
+    
+    
+-- Q15. Which listings took more than 90 days to sell?
+select 
+	s.Listing_ID,
+    s.Days_On_Market,
+    s.Date_Sold,
+    l.Date_Listed,
+    s.Sale_Price,
+    l.Price as Listed_Price,
+    l.City,
+    l.Property_Type
+from sales s
+inner join listings l
+on s.Listing_ID = l.Listing_ID
+where s.Days_On_Market > 90
+order by
+	Date_Sold;
+    
+
+
+
+-- Q16. How does metro distance affect time on market?
+select
+	case
+		when p.metro_distance < 2 then '0-2'
+        when p.metro_distance < 5 && p.metro_distance >= 2 then '2-5'
+        when p.metro_distance < 10 && p.metro_distance >= 5 then '5-10'
+        when p.metro_distance < 15 && p.metro_distance >= 10 then '10-15'
+        when p.metro_distance >= 15 then '15+'
+	end as Metro_Distance_In_KM,
+    round(avg(s.Days_on_Market), 0) as Avg_Days_On_Market,
+    min(s.Days_On_Market) as Min_Days_On_Market,
+    max(s.Days_On_Market) as Max_Days_On_Market
+from
+	sales s
+	inner join property_attributes p
+	on s.listing_id=p.listing_id
+group by
+	Metro_Distance_In_KM
+order by
+	case Metro_Distance_In_KM
+		when '0-2' then 1
+        when '2-5' then 2
+        when '5-10' then 3
+        when '10-15' then 4
+        when '15+' then 5
+	end;
+    
