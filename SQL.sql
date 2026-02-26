@@ -394,7 +394,11 @@ order by
     Parking_Available,
     Power_Backup;
     
--- Q8. How does year built influence listing price?
+    
+    
+    
+    
+-- Q8. How does year built influence listing price? (Currently in Use)
 select
 
 	p.Year_Built as Year_Built,
@@ -411,4 +415,136 @@ group by
 	Year_Built
 order by
 	Year_Built;
+    
+    
+    
+    
+    
+-- Q9. Which Cities have the higest median property prices? (Currently in Use)
 
+select
+	City,
+	round(avg(Price), 2) as Median_Price
+from
+	(select
+		City,
+		Price,
+		row_number() over (
+			partition by city
+			order by price
+		) as Row_Num,
+		count(*) over (
+			partition by city
+		) as Total_Count
+	from listings) T
+where row_num in (
+	Floor((Total_Count + 1) / 2),
+    Floor((Total_Count + 2) / 2)
+)
+group by
+	City
+order by
+	City;
+    
+    
+    
+    
+-- Q10. How are properties distributed across price buckets? (Currently in Use)
+select 
+	
+	T3.Price_Bucket,
+    T3.Total_Properties,
+    T3.Avg_Price,
+    T3.Min_Price,
+    T3.Max_Price,
+    T2.Top_Property_Type as Top_Property_Type,
+    T2.Property_Count as Top_Property_Count
+    
+from
+	(select
+			Price_Bucket,
+			Property_Type as Top_Property_Type,
+			Property_Count
+	from
+		(select
+			CASE
+				WHEN price >= 100000 AND price < 500000 THEN '100K - 500K'
+				WHEN price >= 500000 AND price < 1000000 THEN '500K - 1M'
+				WHEN price >= 1000000 AND price < 2000000 THEN '1M - 2 M'
+				WHEN price >= 2000000 AND price < 3000000 THEN '2M - 3M'
+				WHEN price >= 3000000 AND price < 4000000 THEN '3M - 4M'
+				WHEN price >= 4000000 AND price < 5000000 THEN '4M - 5M'
+			END AS Price_Bucket,
+			property_type,
+			count(*) as Property_Count,
+			row_number() over(
+				partition by
+					CASE
+						WHEN price >= 100000 AND price < 500000 THEN '100K - 500K'
+						WHEN price >= 500000 AND price < 1000000 THEN '500K - 1M'
+						WHEN price >= 1000000 AND price < 2000000 THEN '1M - 2 M'
+						WHEN price >= 2000000 AND price < 3000000 THEN '2M - 3M'
+						WHEN price >= 3000000 AND price < 4000000 THEN '3M - 4M'
+						WHEN price >= 4000000 AND price < 5000000 THEN '4M - 5M'
+					END 
+					order by count(*) desc
+			) as Row_Num
+		from listings
+		group by
+			Price_Bucket,
+			Property_Type) T1
+	where Row_Num = 1) T2
+	inner join
+		(
+			SELECT
+
+				CASE
+					WHEN price >= 100000 AND price < 500000 THEN '100K - 500K'
+					WHEN price >= 500000 AND price < 1000000 THEN '500K - 1M'
+					WHEN price >= 1000000 AND price < 2000000 THEN '1M - 2 M'
+					WHEN price >= 2000000 AND price < 3000000 THEN '2M - 3M'
+					WHEN price >= 3000000 AND price < 4000000 THEN '3M - 4M'
+					WHEN price >= 4000000 AND price < 5000000 THEN '4M - 5M'
+				END AS Price_Bucket,
+				count(*) as Total_Properties,
+				round(avg(price), 2) as Avg_Price,
+				MIN(price) AS Min_Price,
+				MAX(price) AS Max_Price
+				
+			FROM listings
+			GROUP BY Price_Bucket
+			ORDER BY
+				CASE Price_Bucket
+					WHEN '100K - 500K' THEN 1
+					WHEN '500K - 1M' THEN 2
+					WHEN '1M - 2 M' THEN 3
+					WHEN '2M - 3M' THEN 4
+					WHEN '3M - 4M' THEN 5
+					WHEN '4M - 5M' THEN 6
+				END
+		) T3
+on T2.Price_Bucket = T3.Price_Bucket
+order by
+CASE T3.Price_Bucket
+	WHEN '100K - 500K' THEN 1
+	WHEN '500K - 1M' THEN 2
+	WHEN '1M - 2 M' THEN 3
+	WHEN '2M - 3M' THEN 4
+	WHEN '3M - 4M' THEN 5
+	WHEN '4M - 5M' THEN 6
+END;
+
+
+-- Sales & Market Performance Analysis
+
+-- Q11. What is the average days on market by city?
+select
+    l.City,
+    round(avg(s.Days_On_Market), 0) as Avg_Days_On_Market
+from sales s
+inner join listings l
+on s.Listing_ID = l.Listing_ID
+group by
+	l.City
+order by
+	City;
