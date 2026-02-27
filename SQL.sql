@@ -630,7 +630,7 @@ inner join listings l
 on s.Listing_ID = l.Listing_ID
 where s.Days_On_Market > 90
 order by
-	Date_Sold;
+	Listing_ID;
     
 
 
