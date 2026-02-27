@@ -10,25 +10,27 @@ select * from property_attributes;
 select * from sales;
 
 -- Property & Pricing Analysis
--- Q1. What is the average listing price by city?
+-- Q1. What is the average listing price by city? (Currently in Use)
 select
-	City,
-	round(avg(Price), 2)
+    City,
+    round(avg(Price), 2) 
 from listings
-group by City;
+group by City
+order by City;
 
--- Q2. What is the average price per square foot by property type?
+-- Q2. What is the average price per square foot by property type? (Currently in Use)
 with price_sqft as (
-select 
-	property_type,
-    round(sum(price), 2) as total_price,
-    round(sum(sqft), 2) as total_sqft
-from listings
-group by property_type)
-select 
-	property_type,
-    round((total_price/total_sqft), 2) as price_per_sqft
-from price_sqft;
+  select 
+    property_type,
+      round(sum(price), 2) as total_price,
+      round(sum(sqft), 2) as total_sqft
+  from listings
+  group by property_type)
+  select 
+    property_type,
+      round((total_price/total_sqft), 2) as price_per_sqft
+  from price_sqft
+  order by Price_Per_Sqft;
 
 -- Q3. How does furnishing status impact property prices?
 with property_price as 
@@ -157,9 +159,15 @@ INNER JOIN listings l
 GROUP BY 
 	Metro_Distance_In_KM
 ORDER BY 
-	Min_Price;
-
--- based on city (currently in use)
+	case Metro_Distance_In_KM
+		when '0-2' then 1
+        when '2-5' then 2
+		when '5-10' then 3
+        when '10-15' then 4
+        when '15+' then 5
+	end;
+    
+-- based on city 
 SELECT
 	l.city as City,
     CASE
@@ -184,7 +192,13 @@ GROUP BY
     Metro_Distance_In_KM
 ORDER BY
 	City,
-    Min_Price;
+    case Metro_Distance_In_KM
+		when '0-2' then 1
+        when '2-5' then 2
+		when '5-10' then 3
+        when '10-15' then 4
+        when '15+' then 5
+	end;
     
     
     
@@ -213,7 +227,6 @@ group by
 -- based on furnishing status (Currently in Use)
 
 select 
-
 	case
 		when is_rented is True then 'Yes'
 		else 'No'
@@ -233,7 +246,7 @@ group by
 	Property_Rented
 order by
 	Property_Rented,
-    Avg_Price;
+    Furnishing_Status desc;
 
      
 
