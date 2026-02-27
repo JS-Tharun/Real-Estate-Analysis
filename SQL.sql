@@ -159,9 +159,15 @@ INNER JOIN listings l
 GROUP BY 
 	Metro_Distance_In_KM
 ORDER BY 
-	Min_Price;
-
--- based on city (currently in use)
+	case Metro_Distance_In_KM
+		when '0-2' then 1
+        when '2-5' then 2
+		when '5-10' then 3
+        when '10-15' then 4
+        when '15+' then 5
+	end;
+    
+-- based on city 
 SELECT
 	l.city as City,
     CASE
@@ -186,7 +192,13 @@ GROUP BY
     Metro_Distance_In_KM
 ORDER BY
 	City,
-    Min_Price;
+    case Metro_Distance_In_KM
+		when '0-2' then 1
+        when '2-5' then 2
+		when '5-10' then 3
+        when '10-15' then 4
+        when '15+' then 5
+	end;
     
     
     
@@ -215,7 +227,6 @@ group by
 -- based on furnishing status (Currently in Use)
 
 select 
-
 	case
 		when is_rented is True then 'Yes'
 		else 'No'
@@ -235,7 +246,7 @@ group by
 	Property_Rented
 order by
 	Property_Rented,
-    Avg_Price;
+    Furnishing_Status desc;
 
      
 
