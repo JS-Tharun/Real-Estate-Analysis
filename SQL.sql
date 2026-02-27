@@ -662,3 +662,91 @@ order by
         when '15+' then 5
 	end;
     
+
+
+
+
+-- Q17. What is the monthly sales trend?
+select 
+	CONCAT(Month_Sold, ' ', Year_Sold) as Month_Sold,
+    Avg_Sale_Price
+from
+(select
+	case
+		when Month(Date_Sold) = 1 then 'January'
+		when Month(Date_Sold) = 2 then 'February'
+		when Month(Date_Sold) = 3 then 'March'
+		when Month(Date_Sold) = 4 then 'April'
+		when Month(Date_Sold) = 5 then 'May'
+		when Month(Date_Sold) = 6 then 'June'
+		when Month(Date_Sold) = 7 then 'July'
+		when Month(Date_Sold) = 8 then 'August'
+		when Month(Date_Sold) = 9 then 'September'
+		when Month(Date_Sold) = 10 then 'October'
+		when Month(Date_Sold) = 11 then 'November'
+		when Month(Date_Sold) = 12 then 'December'
+	end as Month_Sold,
+	Year(Date_Sold) as Year_Sold,
+	round(avg(Sale_Price), 2) as Avg_Sale_Price
+from sales
+group by
+	Month_Sold,
+    Year_Sold
+order by
+	year_Sold,
+	case Month_Sold
+		when 'January' then 1
+		when 'February' then 2
+		when 'March' then 3
+		when 'April' then 4
+		when 'May' then 5
+		when 'June' then 6
+		when 'July' then 7
+		when 'August' then 8
+		when 'September' then 9
+		when 'October' then 10
+		when 'November' then 11
+		when 'December' then 12
+	end) T;
+    
+    
+    
+
+-- Q18. Which properties are currently unsold?
+-- Property Details
+select 
+	l.Listing_ID,
+    l.City,
+    l.Property_Type,
+    l.Date_Listed
+from listings l
+left join sales s
+on l.Listing_ID = s.Listing_ID
+where s.Sale_Price is NULL;
+
+-- Unsold Properties Analysis
+select
+	City,
+    Property_Type,
+    count(*) as Total_Unsold_Properties
+from
+(select 
+	l.Listing_ID,
+    l.City,
+    l.Property_Type,
+    l.Date_Listed
+from listings l
+left join sales s
+on l.Listing_ID = s.Listing_ID
+where s.Sale_Price is NULL) T
+group by
+	City,
+    Property_Type
+order by 
+	city,
+    Property_Type;
+
+    
+
+	
+    
