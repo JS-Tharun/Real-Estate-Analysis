@@ -553,7 +553,7 @@ END;
 
 -- Sales & Market Performance Analysis
 
--- Q11. What is the average days on market by city?
+-- Q11. What is the average days on market by city? (Currently in Use)
 select
     l.City,
     round(avg(s.Days_On_Market), 0) as Avg_Days_On_Market
@@ -569,10 +569,10 @@ order by
     
     
     
--- Q12. Which property types sell the fastest?
+-- Q12. Which property types sell the fastest? (Currently in Use)
 select
 	l.Property_Type,
-    round(avg(s.Days_On_Market), 0) as Avg_Price,
+    round(avg(s.Days_On_Market), 0) as Avg_Days_On_Sale,
     min(s.Days_On_Market) as Min_Days_On_Market,
     max(s.Days_On_Market) as Max_Days_On_Market
 from sales s
@@ -581,13 +581,13 @@ on s.Listing_ID = l.Listing_ID
 group by
 	l.Property_Type
 order by
-	Avg_Price;
+	Avg_Days_On_Sale;
     
     
     
     
     
--- Q13. What percentage of properties are sold above listing price?
+-- Q13. What percentage of properties are sold above listing price? (Currently in use)
 select
 	case 
 		when s.Sale_Price > l.Price then 'Above Listed Price'
@@ -608,7 +608,7 @@ group by
     
     
     
--- Q14. What is the sale-to-list price ratio by city?
+-- Q14. What is the sale-to-list price ratio by city? (Currently in Use)
 with Price_Table as (select
 	l.City,
 	avg(s.Sale_Price) as Avg_Sale_Price,
@@ -628,7 +628,8 @@ order by
     
     
     
--- Q15. Which listings took more than 90 days to sell?
+    
+-- Q15. Which listings took more than 90 days to sell? (Currently in Use)
 select 
 	s.Listing_ID,
     s.Days_On_Market,
@@ -648,7 +649,7 @@ order by
 
 
 
--- Q16. How does metro distance affect time on market?
+-- Q16. How does metro distance affect time on market? (Currently in Use)
 select
 	case
 		when p.metro_distance < 2 then '0-2'
@@ -680,27 +681,25 @@ order by
 
 
 -- Q17. What is the monthly sales trend?
-select 
-	CONCAT(Month_Sold, ' ', Year_Sold) as Month_Sold,
-    Avg_Sale_Price
-from
-(select
+select
 	case
-		when Month(Date_Sold) = 1 then 'January'
-		when Month(Date_Sold) = 2 then 'February'
-		when Month(Date_Sold) = 3 then 'March'
-		when Month(Date_Sold) = 4 then 'April'
+		when Month(Date_Sold) = 1 then 'Jan'
+		when Month(Date_Sold) = 2 then 'Feb'
+		when Month(Date_Sold) = 3 then 'Mar'
+		when Month(Date_Sold) = 4 then 'Apr'
 		when Month(Date_Sold) = 5 then 'May'
-		when Month(Date_Sold) = 6 then 'June'
-		when Month(Date_Sold) = 7 then 'July'
-		when Month(Date_Sold) = 8 then 'August'
-		when Month(Date_Sold) = 9 then 'September'
-		when Month(Date_Sold) = 10 then 'October'
-		when Month(Date_Sold) = 11 then 'November'
-		when Month(Date_Sold) = 12 then 'December'
+		when Month(Date_Sold) = 6 then 'Jun'
+		when Month(Date_Sold) = 7 then 'Jul'
+		when Month(Date_Sold) = 8 then 'Aug'
+		when Month(Date_Sold) = 9 then 'Sep'
+		when Month(Date_Sold) = 10 then 'Oct'
+		when Month(Date_Sold) = 11 then 'Nov'
+		when Month(Date_Sold) = 12 then 'Dec'
 	end as Month_Sold,
 	Year(Date_Sold) as Year_Sold,
-	round(avg(Sale_Price), 2) as Avg_Sale_Price
+	round(avg(Sale_Price), 2) as Avg_Sale_Price,
+    min(Sale_Price) as Min_Sale_Price,
+    max(Sale_Price) as Max_Sale_Price
 from sales
 group by
 	Month_Sold,
@@ -708,20 +707,19 @@ group by
 order by
 	year_Sold,
 	case Month_Sold
-		when 'January' then 1
-		when 'February' then 2
-		when 'March' then 3
-		when 'April' then 4
+		when 'Jan' then 1
+		when 'Feb' then 2
+		when 'Mar' then 3
+		when 'Apr' then 4
 		when 'May' then 5
-		when 'June' then 6
-		when 'July' then 7
-		when 'August' then 8
-		when 'September' then 9
-		when 'October' then 10
-		when 'November' then 11
-		when 'December' then 12
-	end) T;
-    
+		when 'Jun' then 6
+		when 'Jul' then 7
+		when 'Aug' then 8
+		when 'Sep' then 9
+		when 'Oct' then 10
+		when 'Nov' then 11
+		when 'Dec' then 12
+	end;    
     
     
 
