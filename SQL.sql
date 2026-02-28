@@ -923,6 +923,7 @@ select
 from buyers
 group by
 	Buyer_Type;
+
     
     
     
@@ -1030,6 +1031,3 @@ group by
 	b.Loan_Taken
 order by
 	Avg_Days_On_Market desc;
-
-
-
