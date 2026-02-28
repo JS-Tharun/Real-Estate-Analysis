@@ -680,7 +680,7 @@ order by
 
 
 
--- Q17. What is the monthly sales trend?
+-- Q17. What is the monthly sales trend? (Currently in Use)
 select
 	case
 		when Month(Date_Sold) = 1 then 'Jan'
@@ -723,8 +723,8 @@ order by
     
     
 
--- Q18. Which properties are currently unsold?
--- Property Details
+-- Q18. Which properties are currently unsold? 
+-- Property Details (Currently in Use)
 select 
 	l.Listing_ID,
     l.City,
