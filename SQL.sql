@@ -760,7 +760,7 @@ order by
 
 
 -- Agent Performance
--- Q19. Which agents have closed the most sales?
+-- Q19. Which agents have closed the most sales? (Currently in Use)
 select
 	*
 from(select
@@ -778,7 +778,9 @@ where Agent_Rank between 1 and 10;
 
 
 
--- Q20. Who are the top agents by total sales revenue?
+
+
+-- Q20. Who are the top agents by total sales revenue? (Currently in Use)
 select
 	*
 from(select
@@ -797,7 +799,8 @@ where Agent_Rank between 1 and 10;
 
 
 
--- Q21. Which agents close deals fastest?
+-- Q21. Which agents close deals fastest? 
+-- top 10 agents with lowest avg closing days (Currently in Use)
 select *
 from
 (select
@@ -813,14 +816,28 @@ from
 from agents) T
 where Agent_Rank between 1 and 10;
 
-
+-- agents recorded with the lowest closing days (Currently in Use)
+select 
+    l.Agent_ID,
+    s.Days_On_Market as Days_Taken,
+    l.Listing_ID,
+    l.Date_Listed,
+    s.Date_Sold
+from listings l
+inner join sales s
+on l.Listing_ID = s.Listing_ID
+where 
+	s.Days_On_Market = (select min(Days_On_Market) from sales)
+order by 
+	l.Date_Listed;
 
     
 -- Q22. Does experience correlate with deals closed?
 -- Avg Deals based on yrs of experience
 select 
 	Years_Of_Experience,
-    avg(Deals_Closed) as Avg_Deals_Closed
+    count(*) as Num_Of_Agents,
+    round(avg(Deals_Closed), 0) as Avg_Deals_Closed
 from agents
 group by Years_Of_Experience
 order by Years_Of_Experience;
@@ -835,22 +852,25 @@ from agents;
 
 
 -- Q23. Do agents with higher ratings close deals faster?
-select 
-	case
-		when Rating between 3 and 4 then '3-4'
-		when Rating between 4 and 5 then '4-5'
-	end as Agent_Rating,
-    count(*) as Agent_Count,
-    round(avg(Avg_Closing_Days), 0) as Avg_Closing_Days,
-    min(Avg_Closing_Days) as Min_Closing_Days,
-    max(Avg_Closing_Days) as Max_Closing_Days
-from agents
-group by Agent_Rating
-order by
-	case Agent_Rating
-		when '3-4' then 1
-        when '4-5' then 2
-	end;
+select
+    case
+		when a.Rating between 1 and 2 then '1-2'
+		when a.Rating between 2 and 3 then '2-3'
+		when a.Rating between 3 and 4 then '3-4'
+		when a.Rating between 4 and 5 then '4-5'
+	end as Ranking,
+    round(avg(s.Days_On_Market), 2) as Avg_Closing_Days,
+    min(s.Days_On_Market) as Lowest_Closing_Days,
+    max(s.Days_On_Market) as Highest_Closing_Days
+from 
+	sales s
+inner join listings l
+on s.Listing_ID = l.Listing_ID
+inner join agents a
+on l.Agent_ID = a.Agent_ID
+group by Ranking;
+
+
 
 
 -- Q24. What is the average commission earned by each agent?
@@ -864,6 +884,8 @@ inner join agents a
     on l.Agent_ID = a.Agent_ID
 group by l.Agent_ID
 order by l.Agent_ID;
+
+
 
 
 -- Q25. Which agents currently have the most active listings?
