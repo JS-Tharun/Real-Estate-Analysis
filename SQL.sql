@@ -833,7 +833,7 @@ order by
 
     
 -- Q22. Does experience correlate with deals closed?
--- Avg Deals based on yrs of experience
+-- Avg Deals based on yrs of experience (Currently in Use)
 select 
 	Years_Of_Experience,
     count(*) as Num_Of_Agents,
@@ -842,7 +842,7 @@ from agents
 group by Years_Of_Experience
 order by Years_Of_Experience;
 
--- Table to for correlation
+-- Table to for correlation (Currently in Use)
 select 
 	Years_Of_Experience,
     Deals_Closed
@@ -851,7 +851,7 @@ from agents;
 
 
 
--- Q23. Do agents with higher ratings close deals faster?
+-- Q23. Do agents with higher ratings close deals faster? (Currently in Use)
 select
     case
 		when a.Rating between 1 and 2 then '1-2'
@@ -874,7 +874,7 @@ group by Agent_Rating;
 
 
 
--- Q24. What is the average commission earned by each agent?
+-- Q24. What is the average commission earned by each agent? (Currently in Use)
 select 
     l.Agent_ID,
     round(avg((a.Commission_Rate / 100) * s.Sale_Price), 2) as Avg_Commission_Earned
@@ -889,7 +889,7 @@ order by Avg_Commission_Earned;
 
 
 
--- Q25. Which agents currently have the most active listings?
+-- Q25. Which agents currently have the most active listings? (Currently in Use)
 select *
 from
 	(select
@@ -909,3 +909,127 @@ from
 	order by
 		Active_Property_Count desc) T2
 where Agent_Rank between 1 and 10;
+
+
+
+
+
+
+--  Buyer & Financing Behavior
+-- Q26. What percentage of buyers are investors vs end users? (Currently in Use)
+select 
+    Buyer_Type,
+    round((100 * count(*) / (select count(*) from buyers)), 2) as Percentage
+from buyers
+group by
+	Buyer_Type;
+    
+    
+    
+    
+    
+-- Q27. Which cities have the highest loan uptake rate? (Currently in Use)
+select
+	dense_rank() OVER(
+		ORDER BY round((100 * (T1.Count) / T2.Total_Buyers), 2) desc
+    ) as City_Rank,
+	T1.City,
+    T1.Count,
+    round((100 * (T1.Count) / T2.Total_Buyers), 2) as Percentage
+from
+	(select 
+		l.City,
+		b.Loan_Taken,
+		count(b.Loan_Taken) as Count
+	from 
+		buyers b
+	inner join
+		listings l
+	on b.Listing_ID = l.Listing_ID
+	group by
+		l.City,
+		b.Loan_Taken) T1
+inner join
+	(select
+		l.City,
+		count(*) as Total_Buyers
+	from 
+		buyers b
+	inner join
+		listings l
+	on b.Listing_ID = l.Listing_ID
+	group by
+		l.City) T2
+on T1.City = T2.City
+where Loan_Taken = True;
+    
+-- alt version
+select
+	dense_rank() OVER(
+		order by round( 100.0 * sum(case when b.Loan_Taken = TRUE then 1 else 0 end)
+        / count(*), 2) desc
+    ) as City_Rank,
+    l.City,
+    sum(case when b.Loan_Taken = TRUE then 1 else 0 end) as Count,
+    round(
+        100.0 * sum(case when b.Loan_Taken = TRUE then 1 else 0 end)
+        / count(*), 2
+    ) as Percentage_Loan_Taken
+from buyers b
+inner join listings l
+    on b.Listing_ID = l.Listing_ID
+    
+group by l.City;
+
+
+
+
+-- Q28. What is the average loan amount by buyer type? (Currently in Use)
+select
+	Buyer_Type,
+    round(avg(Loan_Amount), 2) as Avg_Loan_Amount
+from buyers
+where loan_taken = True
+group by
+	Buyer_Type;
+    
+    
+    
+    
+-- Q29. Which payment mode is most commonly used? (Currently in Use)
+select
+	dense_rank() over(
+		order by (100 * count(*) / (select count(*) from buyers)) desc
+    ) as Payment_Method_Rank,
+	Payment_Method,
+    count(*) as Count,
+	(100 * count(*) / (select count(*) from buyers)) as Percentage
+from buyers
+group by
+	Payment_Method;
+    
+    
+    
+    
+-- Q30. Do loan-backed purchases take longer to close? (Currently in Use)
+select
+	case
+		when b.Loan_Taken = True then 'Yes'
+		when b.Loan_Taken = False then 'No'
+	end as Loan_Taken,
+    count(*) as Count,
+    round(avg(s.Days_On_Market), 0) as Avg_Days_On_Market,
+    min(s.Days_On_Market) as Lowest_Days_On_Market,
+    max(s.Days_On_Market) as Highest_Days_On_Market,
+    round(stddev(s.Days_On_Market), 2) as Std_Deviation
+from sales s
+inner join
+	buyers b
+on s.Listing_ID = b.Listing_ID
+group by
+	b.Loan_Taken
+order by
+	Avg_Days_On_Market desc;
+
+
+
