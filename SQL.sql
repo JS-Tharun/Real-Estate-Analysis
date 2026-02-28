@@ -735,7 +735,7 @@ left join sales s
 on l.Listing_ID = s.Listing_ID
 where s.Sale_Price is NULL;
 
--- Unsold Properties Analysis
+-- Unsold Properties Analysis (Currently in Use)
 select
 	City,
     Property_Type,
@@ -757,7 +757,132 @@ order by
 	city,
     Property_Type;
 
-    
 
-	
+
+-- Agent Performance
+-- Q19. Which agents have closed the most sales?
+select
+	*
+from(select
+	dense_rank() over(
+		order by Deals_Closed desc
+    ) as Agent_Rank,
+	Agent_ID,
+    Deals_Closed as Total_Sales,
+    Commission_Rate,
+    Rating,
+    Years_Of_Experience,
+    Avg_Closing_Days
+from agents) T
+where Agent_Rank between 1 and 10;
+
+
+
+-- Q20. Who are the top agents by total sales revenue?
+select
+	*
+from(select
+	dense_rank() over(
+		order by sum(s.Sale_Price) desc
+    ) as Agent_Rank,
+    l.Agent_ID,
+    round(sum(s.Sale_Price), 2) as Total_Sales_Amount
+from sales s
+inner join listings l
+on s.Listing_ID=l.Listing_ID
+group by
+	l.Agent_ID) T
+where Agent_Rank between 1 and 10;
+
+
+
+
+-- Q21. Which agents close deals fastest?
+select *
+from
+(select
+	dense_rank() over(
+		order by Avg_Closing_Days
+	) as Agent_Rank,
+	Agent_ID,
+    Avg_Closing_Days,
+    Deals_Closed,
+    Commission_Rate,
+    Years_Of_Experience,
+    Rating
+from agents) T
+where Agent_Rank between 1 and 10;
+
+
+
     
+-- Q22. Does experience correlate with deals closed?
+-- Avg Deals based on yrs of experience
+select 
+	Years_Of_Experience,
+    avg(Deals_Closed) as Avg_Deals_Closed
+from agents
+group by Years_Of_Experience
+order by Years_Of_Experience;
+
+-- Table to for correlation
+select 
+	Years_Of_Experience,
+    Deals_Closed
+from agents;
+
+
+
+
+-- Q23. Do agents with higher ratings close deals faster?
+select 
+	case
+		when Rating between 3 and 4 then '3-4'
+		when Rating between 4 and 5 then '4-5'
+	end as Agent_Rating,
+    count(*) as Agent_Count,
+    round(avg(Avg_Closing_Days), 0) as Avg_Closing_Days,
+    min(Avg_Closing_Days) as Min_Closing_Days,
+    max(Avg_Closing_Days) as Max_Closing_Days
+from agents
+group by Agent_Rating
+order by
+	case Agent_Rating
+		when '3-4' then 1
+        when '4-5' then 2
+	end;
+
+
+-- Q24. What is the average commission earned by each agent?
+select 
+    l.Agent_ID,
+    round(avg((a.Commission_Rate / 100) * s.Sale_Price), 2) as Avg_Commission_Earned
+from sales s
+inner join listings l
+    on s.Listing_ID = l.Listing_ID
+inner join agents a
+    on l.Agent_ID = a.Agent_ID
+group by l.Agent_ID
+order by l.Agent_ID;
+
+
+-- Q25. Which agents currently have the most active listings?
+select *
+from
+	(select
+		dense_rank() over(
+			order by count(*) desc
+		) as Agent_Rank,
+		Agent_ID,
+		count(*) as Active_Property_Count
+	from(
+		select l.Agent_ID
+		from listings l
+		left join sales s
+		on l.Listing_ID = s.Listing_ID
+		where s.Date_Sold is not NULL) T1
+	group by
+		Agent_ID
+	order by
+		Active_Property_Count desc) T2
+where Agent_Rank between 1 and 10;
