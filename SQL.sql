@@ -858,17 +858,18 @@ select
 		when a.Rating between 2 and 3 then '2-3'
 		when a.Rating between 3 and 4 then '3-4'
 		when a.Rating between 4 and 5 then '4-5'
-	end as Ranking,
-    round(avg(s.Days_On_Market), 2) as Avg_Closing_Days,
+	end as Agent_Rating,
+    round(avg(s.Days_On_Market), 0) as Avg_Closing_Days,
     min(s.Days_On_Market) as Lowest_Closing_Days,
-    max(s.Days_On_Market) as Highest_Closing_Days
+    max(s.Days_On_Market) as Highest_Closing_Days,
+    count(*) as Agent_Count
 from 
 	sales s
 inner join listings l
 on s.Listing_ID = l.Listing_ID
 inner join agents a
 on l.Agent_ID = a.Agent_ID
-group by Ranking;
+group by Agent_Rating;
 
 
 
@@ -883,7 +884,7 @@ inner join listings l
 inner join agents a
     on l.Agent_ID = a.Agent_ID
 group by l.Agent_ID
-order by l.Agent_ID;
+order by Avg_Commission_Earned;
 
 
 
