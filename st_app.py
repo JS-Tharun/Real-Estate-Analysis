@@ -30,14 +30,20 @@ st.title("Real Enstate Analysis Dashboard")
 # Sidebar Filters
 st.sidebar.header("Filters")
 
-#City Filter
-selected_city = st.sidebar.selectbox(
-  "Select City", ['All'] + list(execute_query("select distinct City from listings order by City")["City"])
+# City Filter (Multi-select)
+city_list = list(execute_query("select distinct City from listings order by City")["City"])
+selected_city = st.sidebar.multiselect(
+  label="City",
+  options=city_list
 )
 
-# Property Filter
+selected_city
+
+
+# Property Filter (Dropdown)
 selected_property_type = st.sidebar.selectbox(
-  "Property Type", ['All'] + list(execute_query("select distinct Property_Type from listings order by Property_Type")["Property_Type"])
+  label="Property Type", 
+  options=["All"] + list(execute_query("select distinct Property_Type from listings order by Property_Type")["Property_Type"])
 )
 
 # Price Range
@@ -45,7 +51,7 @@ selected_price_range = st.sidebar.slider(
   "Price Range ($)", 
   min_value=0, 
   max_value=5000000, 
-  value=1000000, 
+  value=5000000, 
   step=500000, 
   format='dollar'
 )
@@ -79,8 +85,9 @@ where
   AND (Date_Listed between '{selected_from_l_date_range}' AND '{selected_to_l_date_range}')
 """
 
-if selected_city != "All":
-  query += f" AND (City = '{selected_city}')"
+if len(selected_city) != 0:
+  city_str = ", ".join([f"'{city}'" for city in selected_city])
+  query += f" AND (City IN ({city_str}))"
 
 if selected_property_type != "All":
   query += f" AND (Property_Type = '{selected_property_type}')"
@@ -92,4 +99,3 @@ if selected_agent != "All":
 # Fetch and display Data
 df = execute_query(query)
 st.dataframe(df)
-
