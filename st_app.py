@@ -37,9 +37,6 @@ selected_city = st.sidebar.multiselect(
   options=city_list
 )
 
-selected_city
-
-
 # Property Filter (Dropdown)
 selected_property_type = st.sidebar.selectbox(
   label="Property Type", 
