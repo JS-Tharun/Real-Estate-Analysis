@@ -4,25 +4,6 @@ from utils import execute_query
 # Filter values
 filter={}
 
-
-
-
-
-# Generate App Sidebar with Filters
-def render_sidebar():
-  st.sidebar.header("Filters")
-
-  city_filter()
-  property_filter()
-  price_filter()
-  agent_filter()
-  from_l_date_filter()
-  to_l_date_filter()
-
-
-
-
-
 # Filters
 # City Filter (Multi-select)
 def city_filter():
@@ -77,37 +58,3 @@ def to_l_date_filter():
     min_value='2023-01-01'
   )
   filter['To Listed Date'] = selected_to_l_date_range
-
-
-
-
-
-# Display DataFrame 
-def render_filter_dataframe():
-  # SQL query based on filter
-  query = f"""
-  select 
-    * 
-  from 
-    listings 
-  where 
-    (Price between 0 AND {filter['Price']}) 
-    AND (Date_Listed between '{filter['From Listed Date']}' AND '{filter['To Listed Date']}')
-  """
-
-  if len(filter['City']) != 0:
-    city_str = ", ".join([f"'{city}'" for city in filter['City']])
-    query += f" AND (City IN ({city_str}))"
-
-  if filter['Property_Type'] != "All":
-    query += f" AND (Property_Type = '{filter['Property_Type']}')"
-
-  if filter['Agent'] != "All":
-    query += f" AND (Agent_ID = '{filter['Agent']}')"
-
-  # Fetch and display Data
-  df = execute_query(query)
-  st.markdown("""
-  ## Filter Result
-  """)
-  st.dataframe(df)

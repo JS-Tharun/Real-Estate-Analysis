@@ -1,5 +1,5 @@
 import streamlit as st
-from filters import render_sidebar, render_filter_dataframe
+from components import render_sidebar, render_dataframe, render_map
 
 # Filter Sidebar
 render_sidebar()
@@ -7,9 +7,9 @@ render_sidebar()
 # Streamlit UI
 st.title("Real Estate Analysis Dashboard")
 
-# Filter result
-render_filter_dataframe()
+# Dataframe
+render_dataframe()
 
-
-
+# Map
+render_map()
 
