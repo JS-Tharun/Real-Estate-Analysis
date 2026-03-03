@@ -691,6 +691,8 @@ select
 		when Month(Date_Sold) = 12 then 'Dec'
 	end as Month_Sold,
 	Year(Date_Sold) as Year_Sold,
+    count(*) as Total_Properties_Sold,
+    round(sum(Sale_Price), 2) as Total_Sale_Amount,
 	round(avg(Sale_Price), 2) as Avg_Sale_Price,
     min(Sale_Price) as Min_Sale_Price,
     max(Sale_Price) as Max_Sale_Price
