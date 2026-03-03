@@ -1,6 +1,6 @@
 import streamlit as st
 from components.properties import property_filter, city_filter, price_filter, agent_filter, from_l_date_filter, to_l_date_filter
-from utils import execute_query
+from utils.utils import execute_query
 
 st.set_page_config(
     page_title="Property Listings",
