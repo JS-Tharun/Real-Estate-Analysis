@@ -1,5 +1,5 @@
 import streamlit as st
-from components import render_sidebar, render_dataframe, render_map, render_bar_chart, render_pie_chart
+from components import render_sidebar, render_dataframe, render_map, render_bar_chart, property_distribution_chart
 
 # Filter Sidebar
 render_sidebar()
@@ -17,5 +17,5 @@ render_map()
 render_bar_chart()
 
 # Pie Chart
-render_pie_chart()
+property_distribution_chart()
 
