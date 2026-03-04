@@ -62,6 +62,7 @@ def property_status_filter():
     "Property Status",
     options=['All', 'Sold', 'Unsold']
   )
+  """
   if selected_property_status == 'Sold':
     selected_rent_status = st.selectbox(
       "Rent Status",
@@ -69,7 +70,7 @@ def property_status_filter():
       key='Is_Rented'
     )
     filter['Rent Status'] = selected_rent_status
-
+  """
   filter['Property Status'] = selected_property_status
 
 def bedroom_filter():
@@ -92,3 +93,10 @@ def bathroom_filter():
   )
   filter['Bathroom Range'] = selected_bathroom_range
 
+def rent_filter():
+  selected_rent_status = st.selectbox(
+    "Rent Status",
+    options=['All', 'Rented', 'Available'],
+    key='Is_Rented'
+  )
+  filter['Rent Status'] = selected_rent_status
