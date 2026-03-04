@@ -1,0 +1,94 @@
+import streamlit as st
+from utils.utils import execute_query
+import math
+
+filter = {}
+
+def property_filter():
+  property_types = list(execute_query("select distinct Property_Type from listings order by Property_Type")["Property_Type"])
+  selected_property_type = st.multiselect(
+    label="Property Type",
+    options=property_types
+  )
+  filter['Property Type'] = selected_property_type
+
+def city_filter():
+  city_list = list(execute_query("select distinct City from listings order by City")["City"])
+  selected_city = st.multiselect(
+    label="City",
+    options=city_list
+  )
+  filter['City'] = selected_city
+
+def price_filter():
+  # Getting the minimum and maximum price from the dataset
+  min_price = int(list(execute_query("select round(min(Price), 0) from listings")['round(min(Price), 0)'])[0])
+  max_price = int(list(execute_query("select round(max(Price), 0) from listings")['round(max(Price), 0)'])[0])
+
+  selected_price_range = st.slider(
+    "Price Range", 
+    min_value=0, 
+    max_value= math.ceil(max_price / 100000) * 100000, #Rounding the value to the next multiple of 100,000
+    step=100000,
+    format='dollar',
+    value=(min_price, max_price)
+  )
+  filter['Price Range'] = selected_price_range
+
+def agent_filter():
+  selected_agent = st.selectbox(
+    "Agent ID", ['All'] + list(execute_query("select distinct Agent_ID from agents")['Agent_ID'])
+  )
+  filter['Agent'] = selected_agent
+
+def from_l_date_filter():
+  selected_from_l_date = st.date_input(
+    "From Listed Date (YYY-MM-DD)",
+    value='2023-01-01',
+    min_value='2023-01-01'
+  )
+  filter['From Listed Date'] = selected_from_l_date
+
+def to_l_date_filter():
+  selected_to_l_date = st.date_input(
+    "To Listed Date (YYY-MM-DD)",
+    value='today',
+    min_value='2023-01-01'
+  )
+  filter['To Listed Date'] = selected_to_l_date
+
+def property_status_filter():
+  selected_property_status = st.selectbox(
+    "Property Status",
+    options=['All', 'Sold', 'Unsold']
+  )
+  if selected_property_status == 'Sold':
+    selected_rent_status = st.selectbox(
+      "Rent Status",
+      options=['All', 'Yes', 'No'],
+      key='Is_Rented'
+    )
+    filter['Rent Status'] = selected_rent_status
+
+  filter['Property Status'] = selected_property_status
+
+def bedroom_filter():
+  selected_bedroom_range = st.slider(
+    "Number of Bedroom",
+    min_value=1,
+    max_value=5,
+    step=1,
+    value=(1,5)
+  )
+  filter['Bedroom Range'] = selected_bedroom_range
+
+def bathroom_filter():
+  selected_bathroom_range = st.slider(
+    "Number of Bathroom",
+    min_value=1,
+    max_value=5,
+    step=1,
+    value=(1,5)
+  )
+  filter['Bathroom Range'] = selected_bathroom_range
+
