@@ -54,6 +54,7 @@ def property_query():
     left join sales s
     on p.Listing_ID = s.Listing_ID) T
     where (Listed_Price between {filter['Price Range'][0]} and {filter['Price Range'][1]})
+    AND (Metro_Distance between {filter['Metro Distance'][0]} and {filter['Metro Distance'][1]})
     And (Date_Listed between '{filter['From Listed Date']}' AND '{filter['To Listed Date']}')
     And (Bedroom between {filter['Bedroom Range'][0]} AND {filter['Bedroom Range'][1]})
     And (Bathroom between {filter['Bathroom Range'][0]} AND {filter['Bathroom Range'][1]})
@@ -72,6 +73,12 @@ def property_query():
   if len(filter['Property Type']) != 0:
     property_str = ", ".join([f"'{property}'" for property in filter['Property Type']])
     query += f" AND (Property_Type IN ({property_str}))"
+
+  if filter['Furnishing Status'] != 'All':
+    query += f"AND (Furnishing_Status = '{filter['Furnishing Status']}')"
+
+  if filter['Agent'] != 'All':
+    query += f"And Agent_ID = '{filter['Agent']}'"
 
 
 

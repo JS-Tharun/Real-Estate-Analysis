@@ -100,3 +100,22 @@ def rent_filter():
     key='Is_Rented'
   )
   filter['Rent Status'] = selected_rent_status
+
+def furnishing_filter():
+  selected_furnishing_status = st.selectbox(
+    "Furnishing Status",
+    options=['All', 'Furnished', 'Semi-Furnished', 'Unfurnished']
+  )
+  filter['Furnishing Status'] = selected_furnishing_status
+
+def metro_distance_filter():
+  min_dis = float(list(execute_query("select min(Metro_Distance) from property_attributes")['min(Metro_Distance)'])[0])
+  max_dis = float(list(execute_query("select max(Metro_Distance) from property_attributes")['max(Metro_Distance)'])[0])
+  selected_distance_range = st.slider(
+    "Distance from Nearest Metro",
+    min_value=0.0,
+    max_value=max_dis,
+    value=(min_dis, max_dis),
+    step=0.50
+  )
+  filter['Metro Distance'] = selected_distance_range
