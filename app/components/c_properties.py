@@ -102,9 +102,10 @@ def rent_filter():
   filter['Rent Status'] = selected_rent_status
 
 def furnishing_filter():
-  selected_furnishing_status = st.selectbox(
-    "Furnishing Status",
-    options=['All', 'Furnished', 'Semi-Furnished', 'Unfurnished']
+  furnish_types = list(execute_query("select distinct Furnishing_Status from property_attributes")["Furnishing_Status"])
+  selected_furnishing_status = st.multiselect(
+    label="Furnishing Status",
+    options=furnish_types
   )
   filter['Furnishing Status'] = selected_furnishing_status
 
@@ -114,8 +115,22 @@ def metro_distance_filter():
   selected_distance_range = st.slider(
     "Distance from Nearest Metro",
     min_value=0.0,
-    max_value=max_dis,
+    max_value=float(math.ceil(max_dis / 10) * 10),
     value=(min_dis, max_dis),
     step=0.50
   )
   filter['Metro Distance'] = selected_distance_range
+
+def parking_filter():
+  selected_parking_value = st.selectbox(
+    label="Parking",
+    options=['All', 'Yes', 'No']
+  )
+  filter['Parking'] = selected_parking_value
+
+def power_backup_filter():
+  selected_power_backup_value = st.selectbox(
+    label="Power Backup",
+    options=['All', 'Yes', 'No']
+  )
+  filter['Power Backup'] = selected_power_backup_value

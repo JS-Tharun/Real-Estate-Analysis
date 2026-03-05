@@ -61,8 +61,7 @@ def property_query():
   """
   # Filter Property Status
   if filter['Property Status'] != 'All':
-      query += f"And (Property_Status = '{filter['Property Status']}')"
-
+      query += f" And (Property_Status = '{filter['Property Status']}')"
   
   # Filter City
   if len(filter['City']) != 0:
@@ -74,11 +73,18 @@ def property_query():
     property_str = ", ".join([f"'{property}'" for property in filter['Property Type']])
     query += f" AND (Property_Type IN ({property_str}))"
 
-  if filter['Furnishing Status'] != 'All':
-    query += f"AND (Furnishing_Status = '{filter['Furnishing Status']}')"
+  if len(filter['Furnishing Status']) != 0:
+    furnish_str = ", ".join([f"'{furnish}'" for furnish in filter['Furnishing Status']])
+    query += f"AND (Furnishing_Status IN ({furnish_str}))"
 
   if filter['Agent'] != 'All':
     query += f"And Agent_ID = '{filter['Agent']}'"
+
+  if filter['Parking'] != 'All':
+    query += f" AND (Parking_Available = '{filter['Parking']}')"
+
+  if filter['Power Backup'] != 'All':
+    query += f" AND (Power_Backup = '{filter['Power Backup']}')"
 
 
 

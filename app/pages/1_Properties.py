@@ -1,5 +1,5 @@
 import streamlit as st
-from components.c_properties import bathroom_filter, property_filter, city_filter, price_filter, agent_filter, from_l_date_filter, rent_filter, to_l_date_filter, property_status_filter, bedroom_filter, furnishing_filter, metro_distance_filter
+from components.c_properties import bathroom_filter, property_filter, city_filter, price_filter, agent_filter, from_l_date_filter, rent_filter, to_l_date_filter, property_status_filter, bedroom_filter, furnishing_filter, metro_distance_filter, parking_filter, power_backup_filter
 from utils.query import property_query
 
 st.set_page_config(
@@ -37,6 +37,9 @@ def main():
             bathroom_filter()
             agent_filter()
             metro_distance_filter()
+            parking_filter()
+            power_backup_filter()
+            
 
 
     with st.container():
