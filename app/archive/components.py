@@ -79,7 +79,7 @@ def property_distribution_chart():
   query = f"""
     select
     Property_Type,
-      round((100 * count(*) / (select count(*) from listings)), 2) as Percentage
+    round((100 * count(*) / (select count(*) from listings)), 2) as Percentage
   from ({data_query}) T
   group by Property_Type;
   """
@@ -88,8 +88,11 @@ def property_distribution_chart():
   ax.pie(df['Percentage'], labels=df['Property_Type'], autopct='%.2f%%')
   ax.axis('equal')
 
-  st.write("## Property Type Distribution")
+  st.write("# Property Type Distribution")
   st.pyplot(fig)
+
+
+
 
 
 

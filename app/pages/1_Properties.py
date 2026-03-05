@@ -1,6 +1,8 @@
 import streamlit as st
-from components.c_properties import bathroom_filter, property_filter, city_filter, price_filter, agent_filter, from_l_date_filter, rent_filter, to_l_date_filter, property_status_filter, bedroom_filter, furnishing_filter, metro_distance_filter, parking_filter, power_backup_filter
-from utils.query import property_query
+from filters.f_properties import property_sidebar_filter, filter
+from utils.query import property_master_query
+from utils.utils import execute_query
+from components.c_properties import map, average_price_chart, no_of_listings, property_distribution_chart, sales_trend, property_type_count
 
 st.set_page_config(
     page_title="Property Listings",
@@ -8,44 +10,42 @@ st.set_page_config(
 )
 
 def main():
+    
+    # Filter Sidebar Bar
+    property_sidebar_filter()
 
     st.header("PROPERTY LISTING")
-    # Filter Bar
+    
+    # Sales Trend
+    with st.container(border=True):
+        if filter['Property Status'] != 'Unsold':
+            sales_trend()
+            
     with st.container():
-        col1, col2, col3 = st.columns([2, 2, 1], border=True)
-
+        col1, col2 = st.columns(2, border=True)
         with col1:
-            st.subheader("Col 1")
-
+            property_type_count()    
         with col2:
-            st.subheader("Col 2")
-
-        with col3:
-            st.subheader("Filter By")
-            city_filter()
-            price_filter()
-            property_status_filter()
-            rent_filter()
-            property_filter()
-            from_l_date_filter()
-            to_l_date_filter()
-            
-            st.divider()
-            st.write("### Amenities")
-            furnishing_filter()
-            bedroom_filter()
-            bathroom_filter()
-            agent_filter()
-            metro_distance_filter()
-            parking_filter()
-            power_backup_filter()
-            
-
+            average_price_chart()            
 
     with st.container():
-        st.subheader("Raw Data")
-        df = property_query()
-        st.dataframe(df)
+        col1, col2 = st.columns(2, border=True)
+        with col1:
+            property_distribution_chart()
+        with col2:
+            map()
+
+    st.subheader("Raw Data")
+    data_query = property_master_query()
+    df = execute_query(data_query)
+    st.dataframe(df)
+
+    
+
+    
+    
+    
+        
         
 if __name__ == "__main__":
     main()

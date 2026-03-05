@@ -1,7 +1,7 @@
 from utils.utils import execute_query
-from components.c_properties import filter
+from filters.f_properties import filter
 
-def property_query():
+def property_master_query():
   query = f"""
     select *
     from
@@ -24,7 +24,7 @@ def property_query():
         p.Total_Floor,
         p.Year_Built,
         case
-        when p.Is_Rented is True then 'Rented'
+        when p.Is_Rented is True then 'Occupied'
           else 'Available'
         end as Rent_Status,
         p.Tenant_Count,
@@ -58,6 +58,7 @@ def property_query():
     And (Date_Listed between '{filter['From Listed Date']}' AND '{filter['To Listed Date']}')
     And (Bedroom between {filter['Bedroom Range'][0]} AND {filter['Bedroom Range'][1]})
     And (Bathroom between {filter['Bathroom Range'][0]} AND {filter['Bathroom Range'][1]})
+    And (Sqft between {filter['Sqft Range'][0]} AND {filter['Sqft Range'][1]})
   """
   # Filter Property Status
   if filter['Property Status'] != 'All':
@@ -73,21 +74,26 @@ def property_query():
     property_str = ", ".join([f"'{property}'" for property in filter['Property Type']])
     query += f" AND (Property_Type IN ({property_str}))"
 
+  # Filter Furnishing Status
   if len(filter['Furnishing Status']) != 0:
     furnish_str = ", ".join([f"'{furnish}'" for furnish in filter['Furnishing Status']])
     query += f"AND (Furnishing_Status IN ({furnish_str}))"
 
+  # Filter Agent
   if filter['Agent'] != 'All':
     query += f"And Agent_ID = '{filter['Agent']}'"
 
+  # Filter Parking Availablity
   if filter['Parking'] != 'All':
     query += f" AND (Parking_Available = '{filter['Parking']}')"
 
+  # Filter Power backup
   if filter['Power Backup'] != 'All':
     query += f" AND (Power_Backup = '{filter['Power Backup']}')"
 
+  # Filter Is Rented
+  if filter['Rent Status'] != 'All':
+    query += f" AND (Rent_Status = '{filter['Rent Status']}')"
 
-
-  df = execute_query(query)
-  return df
+  return query
 

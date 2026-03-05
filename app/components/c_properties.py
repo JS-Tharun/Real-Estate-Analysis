@@ -1,136 +1,179 @@
+from altair import Longitude
 import streamlit as st
 from utils.utils import execute_query
-import math
+from utils.query import property_master_query
+import matplotlib.pyplot as plt
+import pandas as pd
+import plotly.express as px
 
-filter = {}
-
-def property_filter():
-  property_types = list(execute_query("select distinct Property_Type from listings order by Property_Type")["Property_Type"])
-  selected_property_type = st.multiselect(
-    label="Property Type",
-    options=property_types
-  )
-  filter['Property Type'] = selected_property_type
-
-def city_filter():
-  city_list = list(execute_query("select distinct City from listings order by City")["City"])
-  selected_city = st.multiselect(
-    label="City",
-    options=city_list
-  )
-  filter['City'] = selected_city
-
-def price_filter():
-  # Getting the minimum and maximum price from the dataset
-  min_price = int(list(execute_query("select round(min(Price), 0) from listings")['round(min(Price), 0)'])[0])
-  max_price = int(list(execute_query("select round(max(Price), 0) from listings")['round(max(Price), 0)'])[0])
-
-  selected_price_range = st.slider(
-    "Price Range", 
-    min_value=0, 
-    max_value= math.ceil(max_price / 100000) * 100000, #Rounding the value to the next multiple of 100,000
-    step=100000,
-    format='dollar',
-    value=(min_price, max_price)
-  )
-  filter['Price Range'] = selected_price_range
-
-def agent_filter():
-  selected_agent = st.selectbox(
-    "Agent ID", ['All'] + list(execute_query("select distinct Agent_ID from agents")['Agent_ID'])
-  )
-  filter['Agent'] = selected_agent
-
-def from_l_date_filter():
-  selected_from_l_date = st.date_input(
-    "From Listed Date (YYY-MM-DD)",
-    value='2023-01-01',
-    min_value='2023-01-01'
-  )
-  filter['From Listed Date'] = selected_from_l_date
-
-def to_l_date_filter():
-  selected_to_l_date = st.date_input(
-    "To Listed Date (YYY-MM-DD)",
-    value='today',
-    min_value='2023-01-01'
-  )
-  filter['To Listed Date'] = selected_to_l_date
-
-def property_status_filter():
-  selected_property_status = st.selectbox(
-    "Property Status",
-    options=['All', 'Sold', 'Unsold']
-  )
-  """
-  if selected_property_status == 'Sold':
-    selected_rent_status = st.selectbox(
-      "Rent Status",
-      options=['All', 'Yes', 'No'],
-      key='Is_Rented'
+def map():
+    master_table = property_master_query()
+    data_query = f"""
+        select
+            Latitude,
+            Longitude
+        from
+            ({master_table})T
+    """
+    df = execute_query(data_query)
+    st.write("### Map")
+    st.map(
+        data=df,
+        latitude='Latitude',
+        longitude='Longitude'
     )
-    filter['Rent Status'] = selected_rent_status
+
+
+def average_price_chart():
+
+  data_query = property_master_query()
+  final_query = f"""
+    select 
+    City,
+    count(*) as Number_of_Listings,
+    round(avg(Listed_Price), 2) as Average_Price
+  from ({data_query}) T
+  group by city;
   """
-  filter['Property Status'] = selected_property_status
+  
 
-def bedroom_filter():
-  selected_bedroom_range = st.slider(
-    "Number of Bedroom",
-    min_value=1,
-    max_value=5,
-    step=1,
-    value=(1,5)
+  df = execute_query(final_query)
+  st.write("### Average Property Price")
+  avg_price()
+  st.bar_chart(
+    data=df,
+    x='City', 
+    x_label="City",
+    y='Average_Price', 
+    y_label="Price ($)",
+    color='red'
   )
-  filter['Bedroom Range'] = selected_bedroom_range
 
-def bathroom_filter():
-  selected_bathroom_range = st.slider(
-    "Number of Bathroom",
-    min_value=1,
-    max_value=5,
-    step=1,
-    value=(1,5)
-  )
-  filter['Bathroom Range'] = selected_bathroom_range
+def avg_price():
+    data_query = property_master_query()
+    avg_price = int(list(execute_query(f"select round(avg(Listed_Price), 2) from ({data_query}) T")['round(avg(Listed_Price), 2)'])[0])
+    st.write(f"Total Average - ${avg_price}")
 
-def rent_filter():
-  selected_rent_status = st.selectbox(
-    "Rent Status",
-    options=['All', 'Rented', 'Available'],
-    key='Is_Rented'
-  )
-  filter['Rent Status'] = selected_rent_status
+def no_of_listings():
+    data_query = property_master_query()
+    Total_Properties = int(list(execute_query(f"select count(*) from ({data_query})T")['count(*)'])[0])
+    st.write(f"Total - {Total_Properties}")
 
-def furnishing_filter():
-  furnish_types = list(execute_query("select distinct Furnishing_Status from property_attributes")["Furnishing_Status"])
-  selected_furnishing_status = st.multiselect(
-    label="Furnishing Status",
-    options=furnish_types
-  )
-  filter['Furnishing Status'] = selected_furnishing_status
+def property_distribution_chart():
+  data_query = property_master_query()
+  final_query = f"""
+    select
+    Property_Type,
+      round((100 * count(*) / (select count(*) from listings)), 2) as Percentage
+  from ({data_query}) T
+  group by Property_Type;
+  """
+  df = execute_query(final_query)
+  st.write("### Property Type Distribution")
+  fig = px.pie(df, values="Percentage", names="Property_Type")
+  st.plotly_chart(fig)
 
-def metro_distance_filter():
-  min_dis = float(list(execute_query("select min(Metro_Distance) from property_attributes")['min(Metro_Distance)'])[0])
-  max_dis = float(list(execute_query("select max(Metro_Distance) from property_attributes")['max(Metro_Distance)'])[0])
-  selected_distance_range = st.slider(
-    "Distance from Nearest Metro",
-    min_value=0.0,
-    max_value=float(math.ceil(max_dis / 10) * 10),
-    value=(min_dis, max_dis),
-    step=0.50
-  )
-  filter['Metro Distance'] = selected_distance_range
+def property_type_count():
+    data_query= property_master_query()
+    final_query = f"""
+        select
+            Property_Type,
+            count(*) as Type_Count
+        from ({data_query}) T
+        group by
+            Property_Type
+    """
+    df = execute_query(final_query)
+    st.write(f"### Number of Properties")
+    no_of_listings()
+    st.space('xsmall')
+    st.bar_chart(
+        data=df,
+        x='Property_Type',
+        y='Type_Count',
+        x_label='Property Type',
+        y_label='Number of Properties',
+        color='orange'
+    )
 
-def parking_filter():
-  selected_parking_value = st.selectbox(
-    label="Parking",
-    options=['All', 'Yes', 'No']
-  )
-  filter['Parking'] = selected_parking_value
+def sales_trend():
+    data_query = property_master_query()
+    final_query = f"""
+        select
+        case
+            when Month(Date_Sold) = 1 then 'Jan'
+            when Month(Date_Sold) = 2 then 'Feb'
+            when Month(Date_Sold) = 3 then 'Mar'
+            when Month(Date_Sold) = 4 then 'Apr'
+            when Month(Date_Sold) = 5 then 'May'
+            when Month(Date_Sold) = 6 then 'Jun'
+            when Month(Date_Sold) = 7 then 'Jul'
+            when Month(Date_Sold) = 8 then 'Aug'
+            when Month(Date_Sold) = 9 then 'Sep'
+            when Month(Date_Sold) = 10 then 'Oct'
+            when Month(Date_Sold) = 11 then 'Nov'
+            when Month(Date_Sold) = 12 then 'Dec'
+        end as Month_Sold,
+        DATE_FORMAT(Date_Sold, '%m') as Month_Number,
+        Year(Date_Sold) as Year_Sold,
+        count(*) as Total_Properties_Sold,
+        round(sum(Sale_Price), 2) as Total_Sale_Amount,
+        round(avg(Sale_Price), 2) as Avg_Sale_Price,
+        min(Sale_Price) as Min_Sale_Price,
+        max(Sale_Price) as Max_Sale_Price
+        from ({data_query}) T
+        where
+            Date_Sold is not null
+        group by
+            Month_Sold,
+            Month_Number,
+            Year_Sold
+        order by
+            year_Sold,
+            case Month_Sold
+                when 'Jan' then 1
+                when 'Feb' then 2
+                when 'Mar' then 3
+                when 'Apr' then 4
+                when 'May' then 5
+                when 'Jun' then 6
+                when 'Jul' then 7
+                when 'Aug' then 8
+                when 'Sep' then 9
+                when 'Oct' then 10
+                when 'Nov' then 11
+                when 'Dec' then 12
+            end; 
+    """
 
-def power_backup_filter():
-  selected_power_backup_value = st.selectbox(
-    label="Power Backup",
-    options=['All', 'Yes', 'No']
-  )
-  filter['Power Backup'] = selected_power_backup_value
+    df = execute_query(final_query)
+    df['Year_Month'] = df['Year_Sold'].astype(str) + "/" + df['Month_Number'].astype(str)
+    df = df.sort_values("Year_Month")
+    
+
+    #st.subheader("Sales Dataframe")
+    #st.dataframe(df)
+
+    st.subheader("Monthly Sales Revenue")
+    sales_revenue = st.line_chart(
+        df, 
+        x="Year_Month", 
+        y='Total_Sale_Amount',
+        x_label='Year/Month',
+        y_label='Price ($)'
+    )
+
+    st.subheader("Monthly Sales Price")
+    sales_trent = st.line_chart(
+        df, 
+        x="Year_Month", 
+        y=["Avg_Sale_Price", "Min_Sale_Price", 'Max_Sale_Price'],
+        x_label='Year/Month',
+        y_label='Price ($)'
+    )
+
+    
+
+    
+    
+    
