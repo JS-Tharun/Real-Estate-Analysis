@@ -1,5 +1,5 @@
 from utils.utils import execute_query
-from filters.f_properties import filter
+from utils.filters import filter
 
 def property_master_query():
   query = f"""

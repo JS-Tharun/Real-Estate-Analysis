@@ -1,5 +1,5 @@
 import streamlit as st
-from filters.f_properties import property_sidebar_filter, filter
+from utils.filters import property_sidebar_filter, filter
 from tab_components.c_overview import sales_trend, property_type_count
 from tab_components.c_pricing_analytics import avg_price_chart, avg_price_per_sqft_chart, avg_price_furnishing_status, avg_price_by_metro_distance, median_price_chart
 from tab_components.c_geography import listing_by_city_piechart, map, listing_by_city_barchart, property_distribution_chart_1, property_distribution_chart_2
