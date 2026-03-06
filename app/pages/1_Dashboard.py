@@ -17,13 +17,7 @@ def main():
         property_sidebar_filter()
 
     st.write("# Property Analytics Dashboard")
-    st.markdown("""
-        * Track listing performance, pricing trends, sales velocity, and agent effectiveness. 
-
-        * Use the sidebar filters to focus on specific cities, price bands, property types, or agents. 
-
-        ***Note***: All numbers and charts below are based on the filtered dataset."""
-    )
+    st.caption("***Note***: All numbers and charts below are based on the filtered dataset.")
     st.divider()
 
     tab_overview, tab_pricing_analytics, tab_sales_market, tab_geography, tab_agent_performance,  tab_data_tables = st.tabs([
