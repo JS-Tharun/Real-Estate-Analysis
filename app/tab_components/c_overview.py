@@ -12,19 +12,7 @@ def no_of_listings():
     Total_Properties = int(list(execute_query(f"select count(*) from ({data_query})T")['count(*)'])[0])
     st.write(f"Total - {Total_Properties}")
 
-def property_distribution_chart():
-  data_query = property_master_query()
-  final_query = f"""
-    select
-    Property_Type,
-      round((100 * count(*) / (select count(*) from listings)), 2) as Percentage
-  from ({data_query}) T
-  group by Property_Type;
-  """
-  df = execute_query(final_query)
-  st.write("### Property Type Distribution")
-  fig = px.pie(df, values="Percentage", names="Property_Type")
-  st.plotly_chart(fig)
+
 
 def property_type_count():
     data_query= property_master_query()
@@ -124,20 +112,5 @@ def sales_trend():
         y_label='Price ($)'
     )
 
-def raw_data():
-    data_query = property_master_query()
-    df = execute_query(data_query)
-    st.dataframe(df)
 
-def avg_listing_price_per_city_graph():
-    data_query = property_master_query()
-    final_query = f"""
-        select
-            City,
-            round(avg(Price), 2)
-        from (data_query) T
-        group by City,
-        Order by CIty
-    """
-    df = execute_query(final_query)
-    st.dataframe(df)
+
