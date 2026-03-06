@@ -12,7 +12,7 @@ from listings
 group by City
 order by City;
 
--- Q2. What is the average price per square foot by property type? (Currently in Use)
+-- Q2. What is the average price per square foot by property type? 
 with price_sqft as (
   select 
     property_type,
@@ -25,6 +25,18 @@ with price_sqft as (
       round((total_price/total_sqft), 2) as price_per_sqft
   from price_sqft
   order by Price_Per_Sqft;
+  
+-- Updated Code (Currently in Use)
+select
+	Property_Type,
+    round(avg(Price_Per_Sqft), 2) as Avg_Price_Per_Sqft
+from
+	(select
+		Property_Type,
+		(price/sqft) as Price_Per_Sqft
+	from listings) T
+group by
+	Property_Type;
 
 -- Q3. How does furnishing status impact property prices?
 with property_price as 
