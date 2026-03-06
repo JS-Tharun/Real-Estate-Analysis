@@ -13,7 +13,8 @@ st.set_page_config(
 def main():
     
     # Filter Sidebar Bar
-    property_sidebar_filter()
+    with st.sidebar:
+        property_sidebar_filter()
 
     st.write("# Property Analytics Dashboard")
     st.markdown("""
