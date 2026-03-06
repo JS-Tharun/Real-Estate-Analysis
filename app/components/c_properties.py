@@ -45,8 +45,7 @@ def average_price_chart():
     x='City', 
     x_label="City",
     y='Average_Price', 
-    y_label="Price ($)",
-    color='red'
+    y_label="Price ($)"
   )
 
 def avg_price():
@@ -92,8 +91,7 @@ def property_type_count():
         x='Property_Type',
         y='Type_Count',
         x_label='Property Type',
-        y_label='Number of Properties',
-        color='orange'
+        y_label='Number of Properties'
     )
 
 def sales_trend():
