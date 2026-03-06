@@ -25,8 +25,8 @@ def main():
     )
     st.divider()
 
-    tab_overview, tab_pricing_analytics, tab_sales_market, tab_agent_performance, tab_geography, tab_data_tables = st.tabs([
-        "Overview", "Pricing Analytics", "Sales & Market", "Agent Performance", "Geography", "Data Tables"
+    tab_overview, tab_pricing_analytics, tab_sales_market, tab_geography, tab_agent_performance,  tab_data_tables = st.tabs([
+        "Overview", "Pricing Analytics", "Sales & Market", "Geography", "Agent Performance", "Data Tables"
     ])
 
     with tab_overview:
