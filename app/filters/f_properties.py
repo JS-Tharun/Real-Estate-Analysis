@@ -5,10 +5,11 @@ import math
 filter = {}
 
 def property_sidebar_filter():
-  st.sidebar.header("Filter By")
-  city_filter()
+  st.sidebar.header("Filter Panel")
+  st.sidebar.caption("Narrow the data by price, location, property details, agent, and listing date. All charts and tables below update automatically.")
   price_filter()
   sqft_filter()
+  city_filter()
   property_type_filter()
   property_status_filter()
   rent_filter()

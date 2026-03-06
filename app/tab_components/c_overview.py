@@ -6,52 +6,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import plotly.express as px
 
-def map():
-    master_table = property_master_query()
-    data_query = f"""
-        select
-            Latitude,
-            Longitude
-        from
-            ({master_table})T
-    """
-    df = execute_query(data_query)
-    st.write("### Map")
-    st.map(
-        data=df,
-        latitude='Latitude',
-        longitude='Longitude'
-    )
-
-
-def average_price_chart():
-
-  data_query = property_master_query()
-  final_query = f"""
-    select 
-    City,
-    count(*) as Number_of_Listings,
-    round(avg(Listed_Price), 2) as Average_Price
-  from ({data_query}) T
-  group by city;
-  """
-  
-
-  df = execute_query(final_query)
-  st.write("### Average Property Price")
-  avg_price()
-  st.bar_chart(
-    data=df,
-    x='City', 
-    x_label="City",
-    y='Average_Price', 
-    y_label="Price ($)"
-  )
-
-def avg_price():
-    data_query = property_master_query()
-    avg_price = int(list(execute_query(f"select round(avg(Listed_Price), 2) from ({data_query}) T")['round(avg(Listed_Price), 2)'])[0])
-    st.write(f"Total Average - ${avg_price}")
 
 def no_of_listings():
     data_query = property_master_query()
@@ -83,7 +37,7 @@ def property_type_count():
             Property_Type
     """
     df = execute_query(final_query)
-    st.write(f"### Number of Properties")
+    st.write(f"### Listing By Property Type")
     no_of_listings()
     st.space('xsmall')
     st.bar_chart(
@@ -170,8 +124,20 @@ def sales_trend():
         y_label='Price ($)'
     )
 
-    
+def raw_data():
+    data_query = property_master_query()
+    df = execute_query(data_query)
+    st.dataframe(df)
 
-    
-    
-    
+def avg_listing_price_per_city_graph():
+    data_query = property_master_query()
+    final_query = f"""
+        select
+            City,
+            round(avg(Price), 2)
+        from (data_query) T
+        group by City,
+        Order by CIty
+    """
+    df = execute_query(final_query)
+    st.dataframe(df)
