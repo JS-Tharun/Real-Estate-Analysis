@@ -43,7 +43,8 @@ def listing_by_city_barchart():
         data=df,
         x='City',
         y='Total_listings',
-        y_label='Count'
+        y_label='Count',
+        color='red'
     )
 
 def listing_by_city_piechart():

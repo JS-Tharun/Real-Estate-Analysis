@@ -1,9 +1,10 @@
 import streamlit as st
 from utils.filters import property_sidebar_filter, filter
-from tab_components.c_overview import sales_trend, property_type_count
-from tab_components.c_pricing_analytics import avg_price_chart, avg_price_per_sqft_chart, avg_price_furnishing_status, avg_price_by_metro_distance, median_price_chart
+from tab_components.c_overview import property_type_count
+from tab_components.c_pricing_analytics import avg_price_chart, avg_price_per_sqft_chart, avg_price_furnishing_status, avg_price_by_metro_distance, median_price_chart, price_bucket_chart
 from tab_components.c_geography import listing_by_city_piechart, map, listing_by_city_barchart, property_distribution_chart_1, property_distribution_chart_2
 from tab_components.c_data_tables import raw_data
+from tab_components.c_sales_market import monthly_sales_price, monthly_sales_revenue, sale_above_listed_per, monthly_sales_count
 
 st.set_page_config(
     page_title="Analytics Dashboard",
@@ -37,32 +38,50 @@ def main():
             listing_by_city_barchart()
 
     with tab_pricing_analytics:
-        col1, col2 = st.columns(2, border=True)
-        with col1:
-            avg_price_chart()
-        with col2:
-            median_price_chart()
-            
-
         with st.container():
-            col1, col2, col3 = st.columns([1, 1, 2], border=True)
+            col1, col2 = st.columns([2, 1], border=True)
             with col1:
-                avg_price_per_sqft_chart()
-
+                price_bucket_chart()
             with col2:
                 avg_price_furnishing_status()
-
-            with col3:
+        
+        with st.container():
+            col1, col2 = st.columns([2, 1], border=True)
+            with col1:
                 avg_price_by_metro_distance()
-                
+
+            with col2:
+                median_price_chart()                
+
+        with st.container():
+            col1, col2 = st.columns([2, 1], border=True)
+            with col1:
+                avg_price_chart()
+        
+            with col2:
+                avg_price_per_sqft_chart()
+              
 
     with tab_sales_market:
+        if filter['Property Status'] != 'Unsold':
         # Sales Trend
-        with st.container(border=True):
-            if filter['Property Status'] != 'Unsold':
-                sales_trend()
-            else:
-                st.write("Clear Property Status Filter to view.")
+            with st.container(border=True):
+                monthly_sales_revenue()
+
+            with st.container(border=True):
+                monthly_sales_price()  
+
+            with st.container(border=True):
+                sale_above_listed_per()
+            
+            with st.container(border=True):
+                monthly_sales_count()
+                                
+        else:
+            st.write("Clear Property Status Filter to view.")
+
+        
+
 
     with tab_geography:
         with st.container():
