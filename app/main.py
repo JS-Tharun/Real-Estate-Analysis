@@ -6,6 +6,9 @@ st.set_page_config(
 
 
 def main():
+
+    st.sidebar.text("Hello")
+
     st.title("BrickView Analysis")
     st.markdown("""
         * Track listing performance, pricing trends, sales velocity, and agent effectiveness. 

@@ -33,7 +33,8 @@ def property_type_filter():
   property_types = list(execute_query("select distinct Property_Type from listings order by Property_Type")["Property_Type"])
   selected_property_type = st.multiselect(
     label="Property Type",
-    options=property_types
+    options=property_types,
+    placeholder='All'
   )
   filter['Property Type'] = selected_property_type
 
@@ -41,7 +42,8 @@ def city_filter():
   city_list = list(execute_query("select distinct City from listings order by City")["City"])
   selected_city = st.multiselect(
     label="City",
-    options=city_list
+    options=city_list,
+    placeholder='All'
   )
   filter['City'] = selected_city
 
@@ -62,7 +64,10 @@ def price_filter():
 
 def agent_filter():
   selected_agent = st.selectbox(
-    "Agent ID", ['All'] + list(execute_query("select distinct Agent_ID from agents")['Agent_ID'])
+    label="Agent ID", 
+    options=list(execute_query("select distinct Agent_ID from agents")['Agent_ID']),
+    index=None,
+    placeholder='All'
   )
   filter['Agent'] = selected_agent
 
@@ -85,7 +90,9 @@ def to_l_date_filter():
 def property_status_filter():
   selected_property_status = st.selectbox(
     "Property Status",
-    options=['All', 'Sold', 'Unsold']
+    options=['Sold', 'Unsold'],
+    index=None,
+    placeholder='All'
   )
   filter['Property Status'] = selected_property_status
 
@@ -112,7 +119,9 @@ def bathroom_filter():
 def rent_filter():
   selected_rent_status = st.selectbox(
     "Rent Status",
-    options=['All', 'Occupied', 'Available'],
+    options=['Occupied', 'Available'],
+    index=None,
+    placeholder="All"
   )
   filter['Rent Status'] = selected_rent_status
 
@@ -120,7 +129,8 @@ def furnishing_filter():
   furnish_types = list(execute_query("select distinct Furnishing_Status from property_attributes")["Furnishing_Status"])
   selected_furnishing_status = st.multiselect(
     label="Furnishing Status",
-    options=furnish_types
+    options=furnish_types,
+    placeholder='All'
   )
   filter['Furnishing Status'] = selected_furnishing_status
 
@@ -139,14 +149,18 @@ def metro_distance_filter():
 def parking_filter():
   selected_parking_value = st.selectbox(
     label="Parking Availability",
-    options=['All', 'Yes', 'No']
+    options=['Yes', 'No'],
+    index=None,
+    placeholder='All'
   )
   filter['Parking'] = selected_parking_value
 
 def power_backup_filter():
   selected_power_backup_value = st.selectbox(
     label="Power Backup Availability",
-    options=['All', 'Yes', 'No']
+    options=['Yes', 'No'],
+    index=None,
+    placeholder='All'
   )
   filter['Power Backup'] = selected_power_backup_value
 

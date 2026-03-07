@@ -1,6 +1,6 @@
 import streamlit as st
 from utils.utils import execute_query
-from utils.query import property_master_query
+from utils.data import property_master_query
 
 
 def no_of_listings():

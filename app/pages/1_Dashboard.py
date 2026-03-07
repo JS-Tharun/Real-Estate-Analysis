@@ -1,5 +1,4 @@
 import streamlit as st
-from streamlit.elements.lib.layout_utils import Height
 from utils.filters import property_sidebar_filter, filter
 from tab_components.c_overview import property_type_count
 from tab_components.c_pricing_analytics import avg_price_chart, avg_price_per_sqft_chart, avg_price_furnishing_status, avg_price_by_metro_distance, median_price_chart, price_bucket_chart
@@ -22,8 +21,8 @@ def main():
     st.caption("***Note***: All numbers and charts below are based on the filtered dataset.")
     st.divider()
 
-    tab_overview, tab_pricing_analytics, tab_sales_market, tab_geography, tab_agent_performance,  tab_data_tables = st.tabs([
-        "Overview", "Pricing Analytics", "Sales & Market", "Geography", "Agent Performance", "Data Tables"
+    tab_overview, tab_pricing_analytics, tab_sales_market, tab_geography, tab_data_tables = st.tabs([
+        "Overview", "Pricing Analytics", "Sales & Market", "Geography", "Data Tables"
     ])
 
     with tab_overview:
@@ -31,7 +30,7 @@ def main():
         with st.container():
             col1, col2 = st.columns(2, border=True)
             with col1:
-                property_type_count() 
+                 listing_by_city_barchart()
             with col2:
                 property_distribution_chart_1()
 
@@ -42,7 +41,8 @@ def main():
                 monthly_sales_revenue()
 
             with col2:
-                listing_by_city_barchart()
+                property_type_count()
+                
 
         
     with tab_pricing_analytics:

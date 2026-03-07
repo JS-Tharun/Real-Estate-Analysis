@@ -1,6 +1,6 @@
 import streamlit as st
 from utils.utils import execute_query
-from utils.query import property_master_query
+from utils.data import property_master_query
 import altair as alt
 
 def median_price_chart():
@@ -38,7 +38,7 @@ def median_price_chart():
         x='City',
         y='Median_Price',
         y_label='Price ($)',
-        color='violet'
+        color='#6635f8'
     )
 
 

@@ -1,9 +1,6 @@
-from altair import Longitude
 import streamlit as st
 from utils.utils import execute_query
-from utils.query import property_master_query
-import matplotlib.pyplot as plt
-import pandas as pd
+from utils.data import property_master_query
 import plotly.express as px
 from tab_components.c_overview import no_of_listings
 
@@ -44,7 +41,7 @@ def listing_by_city_barchart():
         x='City',
         y='Total_listings',
         y_label='Count',
-        color='red'
+        color='#D13734'
     )
 
 def listing_by_city_piechart():

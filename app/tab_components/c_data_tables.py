@@ -1,10 +1,7 @@
 from altair import Longitude
 import streamlit as st
 from utils.utils import execute_query
-from utils.query import property_master_query
-import matplotlib.pyplot as plt
-import pandas as pd
-import plotly.express as px
+from utils.data import property_master_query
 
 def raw_data():
     data_query = property_master_query()

@@ -1,7 +1,7 @@
 import streamlit as st
 import plotly.express as px
 from utils.utils import execute_query
-from utils.query import property_master_query
+from utils.data import property_master_query
 
 
 def monthly_sales_revenue():
@@ -187,7 +187,7 @@ def monthly_sales_count():
         y="Total_Properties_Sold",
         x_label='Year/Month',
         y_label='Count',
-        color='red'
+        color='#D13734'
     )
 
 

@@ -20,3 +20,6 @@ def execute_query(query):
   df = pd.read_sql(query, conn)
   conn.close()
   return df
+
+
+  

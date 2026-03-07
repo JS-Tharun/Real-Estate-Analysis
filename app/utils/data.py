@@ -1,8 +1,13 @@
-from utils.utils import execute_query
 from utils.filters import filter
+from utils.utils import get_connection
 
-def property_master_query():
-  query = f"""
+def load_view_table():
+  conn = get_connection()
+  cur = conn.cursor()
+  cur.execute("drop view if exists property_master_view;")
+  
+  query = """
+    create view property_master_view as
     select *
     from
       (select 
@@ -52,7 +57,14 @@ def property_master_query():
     left join property_attributes p
     on l.Listing_ID = p.Listing_ID
     left join sales s
-    on p.Listing_ID = s.Listing_ID) T
+    on p.Listing_ID = s.Listing_ID) T;
+  """
+  cur.execute(query)
+
+def property_master_query():
+  load_view_table()
+  query = f"""
+    select * from property_master_view
     where (Listed_Price between {filter['Price Range'][0]} and {filter['Price Range'][1]})
     AND (Metro_Distance between {filter['Metro Distance'][0]} and {filter['Metro Distance'][1]})
     And (Date_Listed between '{filter['From Listed Date']}' AND '{filter['To Listed Date']}')
@@ -60,8 +72,9 @@ def property_master_query():
     And (Bathroom between {filter['Bathroom Range'][0]} AND {filter['Bathroom Range'][1]})
     And (Sqft between {filter['Sqft Range'][0]} AND {filter['Sqft Range'][1]})
   """
+  
   # Filter Property Status
-  if filter['Property Status'] != 'All':
+  if filter['Property Status'] != None:
       query += f" And (Property_Status = '{filter['Property Status']}')"
   
   # Filter City
@@ -80,19 +93,19 @@ def property_master_query():
     query += f"AND (Furnishing_Status IN ({furnish_str}))"
 
   # Filter Agent
-  if filter['Agent'] != 'All':
+  if filter['Agent'] != None:
     query += f"And Agent_ID = '{filter['Agent']}'"
 
   # Filter Parking Availablity
-  if filter['Parking'] != 'All':
+  if filter['Parking'] != None:
     query += f" AND (Parking_Available = '{filter['Parking']}')"
 
   # Filter Power backup
-  if filter['Power Backup'] != 'All':
+  if filter['Power Backup'] != None:
     query += f" AND (Power_Backup = '{filter['Power Backup']}')"
 
   # Filter Is Rented
-  if filter['Rent Status'] != 'All':
+  if filter['Rent Status'] != None:
     query += f" AND (Rent_Status = '{filter['Rent Status']}')"
 
   return query
