@@ -614,7 +614,7 @@ group by
     
     
     
--- Q14. What is the sale-to-list price ratio by city? (Currently in Use)
+-- Q14. What is the sale-to-list price ratio by city? 
 with Price_Table as (select
 	l.City,
 	avg(s.Sale_Price) as Avg_Sale_Price,
@@ -630,6 +630,23 @@ select
 from Price_Table
 order by
 	City;
+    
+-- updated code (Currently in Use)
+select
+	city,
+    round(avg(ratio), 4) as Sale_To_List_Price_Ratio
+from
+(select 
+	City,
+	l.Price,
+    s.Sale_Price,
+    (s.Sale_Price/l.Price) as ratio
+from 
+	sales s
+inner join listings l
+on s.Listing_ID = l.Listing_ID) T
+group by
+	city;
     
     
     
