@@ -186,7 +186,8 @@ def monthly_sales_count():
         x="Year_Month", 
         y="Total_Properties_Sold",
         x_label='Year/Month',
-        y_label='Count'
+        y_label='Count',
+        color='red'
     )
 
 
@@ -208,4 +209,30 @@ def sale_above_listed_per():
     df = execute_query(final_query)
     st.write("Sale Price Relative to Listing Price")
     fig = px.pie(df, values="Percentage", names="Property_Sold_At")
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, key='sales')
+
+def sale_to_list_price_chart():
+    data_query = property_master_query()
+    final_query = f"""
+        select
+            city,
+            round(avg(ratio), 4) as Sale_To_List_Price_Ratio
+        from
+        (select
+            City,
+            Listed_Price,
+            Sale_Price,
+            (Sale_Price/Listed_Price) as ratio
+        from ({data_query}) T1
+        where Sale_Price is not null) T2
+        group by
+            City;
+    """
+    df = execute_query(final_query)
+    st.write("Sale to List Price Ratio Based on City")
+    st.bar_chart(
+        data=df,
+        x='City',
+        y='Sale_To_List_Price_Ratio',
+        y_label='Ratio'
+    )
