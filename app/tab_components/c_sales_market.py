@@ -127,7 +127,8 @@ def monthly_sales_price():
         x="Year_Month", 
         y=["Avg_Sale_Price", "Min_Sale_Price", 'Max_Sale_Price'],
         x_label='Year/Month',
-        y_label='Price ($)'
+        y_label='Price ($)',
+        height='content'
     )
 
 def monthly_sales_count():
@@ -209,7 +210,7 @@ def sale_above_listed_per():
     df = execute_query(final_query)
     st.write("Sale Price Relative to Listing Price")
     fig = px.pie(df, values="Percentage", names="Property_Sold_At")
-    st.plotly_chart(fig, key='sales')
+    st.plotly_chart(fig, key='sales', width='content', height='content')
 
 def sale_to_list_price_chart():
     data_query = property_master_query()
@@ -234,5 +235,27 @@ def sale_to_list_price_chart():
         data=df,
         x='City',
         y='Sale_To_List_Price_Ratio',
-        y_label='Ratio'
+        y_label='Ratio',
+        height='content'
+    )
+
+def avg_days_on_market_chart():
+    data_query = property_master_query()
+    final_query = f"""
+        select
+            City,
+            round(avg(Days_On_Market), 0) as Avg_Days_On_Market
+        from ({data_query}) T
+        group by
+            l.City
+        order by
+            City;
+    """
+    df = execute_query(final_query)
+    st.write("Avg Days On Market By City")
+    st.bar_chart(
+        data=df,
+        x='City',
+        y='Avg_Days_On_Market',
+        y_label='Days'
     )

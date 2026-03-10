@@ -1,8 +1,13 @@
+from turtle import onclick
 import streamlit as st
 from utils.utils import execute_query
 import math
 
 filter = {}
+
+class Reset:
+  def __init__(self):
+    button = st.button("Reset")
 
 def property_sidebar_filter():
   st.header("Filter Panel")

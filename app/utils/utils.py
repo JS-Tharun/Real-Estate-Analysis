@@ -21,5 +21,22 @@ def execute_query(query):
   conn.close()
   return df
 
+def execute_insert(query, values):
+  try:
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(query, values)
+    conn.commit()
+
+    return True, None
+
+  except mysql.connector.Error as err:
+    return False, err
+
+  finally:
+    cur.close()
+    conn.close()
+
+
 
   

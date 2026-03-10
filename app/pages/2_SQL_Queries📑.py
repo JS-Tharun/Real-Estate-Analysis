@@ -1,3 +1,4 @@
+from numpy import True_
 import streamlit as st
 from utils.utils import execute_query
 
@@ -12,7 +13,7 @@ tab_property_pricing, tab_sales_market, tab_agent_performance, tab_buyer = st.ta
 
 with tab_property_pricing:
     queries = {
-        "1. What is the average listing price by city?": "select City, round(avg(Price), 2) from listings group by City order by City",
+        "1. What is the average listing price by city?": "select City, round(avg(Price), 2) as Avg_Price from listings group by City order by City",
 
         "2. What is the average price per square foot by property type?": "select Property_Type, round(avg(Price_Per_Sqft), 2) as Avg_Price_Per_Sqft from (select Property_Type, (price/sqft) as Price_Per_Sqft from listings) T group by Property_Type order by Avg_Price_Per_Sqft",
 
@@ -253,22 +254,20 @@ with tab_property_pricing:
 
     }
 
-    col1, col2 = st.columns([1, 2], border=True)
-
-    with col1:
+    with st.container(border=True):
         selected_query = st.selectbox(
             label="Choose a Query",
             options= list(queries.keys()),
             index=None,
             placeholder="Select Query"
-        )
-
-    with col2:
+        )   
+    
         st.write("Query Result")
         if selected_query != None:
             result_df = execute_query(queries[selected_query])
-            
             st.dataframe(result_df)
+        else:
+            st.caption("No Query Selected")
 
 with tab_sales_market:
     queries = {
@@ -439,10 +438,7 @@ with tab_sales_market:
         """
     }
 
-    col1, col2 = st.columns([1, 2], border=True)
-
-    with col1:
-
+    with st.container(border=True):
         selected_query = st.selectbox(
             label="Choose a Query",
             options= list(queries.keys()),
@@ -450,11 +446,13 @@ with tab_sales_market:
             placeholder="Select Query"
         )
 
-    with col2:
         st.write("Query Result")
         if selected_query != None:
             result_df = execute_query(queries[selected_query])
             st.dataframe(result_df)
+        
+        else:
+            st.caption("No Query Selected")
 
 with tab_agent_performance:
     queries = {
@@ -575,10 +573,7 @@ with tab_agent_performance:
         """
     }
 
-    col1, col2 = st.columns([1, 2], border=True)
-
-    with col1:
-
+    with st.container(border=True):
         selected_query = st.selectbox(
             label="Choose a Query",
             options= list(queries.keys()),
@@ -586,115 +581,116 @@ with tab_agent_performance:
             placeholder="Select Query"
         )
 
-    with col2:
         st.write("Query Result")
         if selected_query != None:
             result_df = execute_query(queries[selected_query])
             st.dataframe(result_df)
 
+        else:
+            st.caption("No Query Selected")
 
-    with tab_buyer:
-        queries = {
-            "1. What percentage of buyers are investors vs end users?" : """
-                select 
-                    Buyer_Type,
-                    round((100 * count(*) / (select count(*) from buyers)), 2) as Percentage
-                from buyers
-                group by
-                    Buyer_Type;
-            """,
 
-            "2. Which cities have the highest loan uptake rate?" : """
-                select
-                    dense_rank() OVER(
-                        ORDER BY round((100 * (T1.Count) / T2.Total_Buyers), 2) desc
-                    ) as City_Rank,
-                    T1.City,
-                    T1.Count,
-                    round((100 * (T1.Count) / T2.Total_Buyers), 2) as Percentage
-                from
-                    (select 
-                        l.City,
-                        b.Loan_Taken,
-                        count(b.Loan_Taken) as Count
-                    from 
-                        buyers b
-                    inner join
-                        listings l
-                    on b.Listing_ID = l.Listing_ID
-                    group by
-                        l.City,
-                        b.Loan_Taken) T1
-                inner join
-                    (select
-                        l.City,
-                        count(*) as Total_Buyers
-                    from 
-                        buyers b
-                    inner join
-                        listings l
-                    on b.Listing_ID = l.Listing_ID
-                    group by
-                        l.City) T2
-                on T1.City = T2.City
-                where Loan_Taken = True;
-            """,
-            "3. What is the average loan amount by buyer type?" : """
-                select
-                    Buyer_Type,
-                    round(avg(Loan_Amount), 2) as Avg_Loan_Amount
-                from buyers
-                where loan_taken = True
-                group by
-                    Buyer_Type;
-            """,
-            "4. Which payment mode is most commonly used?" : """
-                select
-                    dense_rank() over(
-                        order by (100 * count(*) / (select count(*) from buyers)) desc
-                    ) as Payment_Method_Rank,
-                    Payment_Method,
-                    count(*) as Count,
-                    (100 * count(*) / (select count(*) from buyers)) as Percentage
-                from buyers
-                group by
-                    Payment_Method;
-            """,
-            "5. Do loan-backed purchases take longer to close?" : """
-                select
-                case
-                    when b.Loan_Taken = True then 'Yes'
-                    when b.Loan_Taken = False then 'No'
-                end as Loan_Taken,
-                count(*) as Count,
-                round(avg(s.Days_On_Market), 0) as Avg_Days_On_Market,
-                min(s.Days_On_Market) as Lowest_Days_On_Market,
-                max(s.Days_On_Market) as Highest_Days_On_Market,
-                round(stddev(s.Days_On_Market), 2) as Std_Deviation
-            from sales s
-            inner join
-                buyers b
-            on s.Listing_ID = b.Listing_ID
+with tab_buyer:
+    queries = {
+        "1. What percentage of buyers are investors vs end users?" : """
+            select 
+                Buyer_Type,
+                round((100 * count(*) / (select count(*) from buyers)), 2) as Percentage
+            from buyers
             group by
-                b.Loan_Taken
-            order by
-                Avg_Days_On_Market desc;
-            """
-        }
+                Buyer_Type;
+        """,
 
-        col1, col2 = st.columns([1, 2], border=True)
+        "2. Which cities have the highest loan uptake rate?" : """
+            select
+                dense_rank() OVER(
+                    ORDER BY round((100 * (T1.Count) / T2.Total_Buyers), 2) desc
+                ) as City_Rank,
+                T1.City,
+                T1.Count,
+                round((100 * (T1.Count) / T2.Total_Buyers), 2) as Percentage
+            from
+                (select 
+                    l.City,
+                    b.Loan_Taken,
+                    count(b.Loan_Taken) as Count
+                from 
+                    buyers b
+                inner join
+                    listings l
+                on b.Listing_ID = l.Listing_ID
+                group by
+                    l.City,
+                    b.Loan_Taken) T1
+            inner join
+                (select
+                    l.City,
+                    count(*) as Total_Buyers
+                from 
+                    buyers b
+                inner join
+                    listings l
+                on b.Listing_ID = l.Listing_ID
+                group by
+                    l.City) T2
+            on T1.City = T2.City
+            where Loan_Taken = True;
+        """,
+        "3. What is the average loan amount by buyer type?" : """
+            select
+                Buyer_Type,
+                round(avg(Loan_Amount), 2) as Avg_Loan_Amount
+            from buyers
+            where loan_taken = True
+            group by
+                Buyer_Type;
+        """,
+        "4. Which payment mode is most commonly used?" : """
+            select
+                dense_rank() over(
+                    order by (100 * count(*) / (select count(*) from buyers)) desc
+                ) as Payment_Method_Rank,
+                Payment_Method,
+                count(*) as Count,
+                (100 * count(*) / (select count(*) from buyers)) as Percentage
+            from buyers
+            group by
+                Payment_Method;
+        """,
+        "5. Do loan-backed purchases take longer to close?" : """
+            select
+            case
+                when b.Loan_Taken = True then 'Yes'
+                when b.Loan_Taken = False then 'No'
+            end as Loan_Taken,
+            count(*) as Count,
+            round(avg(s.Days_On_Market), 0) as Avg_Days_On_Market,
+            min(s.Days_On_Market) as Lowest_Days_On_Market,
+            max(s.Days_On_Market) as Highest_Days_On_Market,
+            round(stddev(s.Days_On_Market), 2) as Std_Deviation
+        from sales s
+        inner join
+            buyers b
+        on s.Listing_ID = b.Listing_ID
+        group by
+            b.Loan_Taken
+        order by
+            Avg_Days_On_Market desc;
+        """
+    }
 
-        with col1:
+    with st.container(border=True):
+        selected_query = st.selectbox(
+            label="Choose a Query",
+            options= list(queries.keys()),
+            index=None,
+            placeholder="Select Query"
+        )
 
-            selected_query = st.selectbox(
-                label="Choose a Query",
-                options= list(queries.keys()),
-                index=None,
-                placeholder="Select Query"
-            )
+        st.write("Query Result")
+        if selected_query != None:
+            result_df = execute_query(queries[selected_query])
+            st.dataframe(result_df)
 
-        with col2:
-            st.write("Query Result")
-            if selected_query != None:
-                result_df = execute_query(queries[selected_query])
-                st.dataframe(result_df)
+        else:
+            st.caption("No Query Selected")

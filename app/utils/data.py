@@ -1,7 +1,7 @@
 from utils.filters import filter
 from utils.utils import get_connection
 
-def load_view_table():
+def load_property_view_table():
   conn = get_connection()
   cur = conn.cursor()
   cur.execute("drop view if exists property_master_view;")
@@ -61,8 +61,44 @@ def load_view_table():
   """
   cur.execute(query)
 
+def load_agent_view_table():
+  conn = get_connection()
+  cur = conn.cursor()
+  cur.execute("drop view if exists agent_master_view;")
+
+  query = """
+    create view agent_master_view as
+    select 
+      l.Listing_ID,
+        l.City,
+        l.Property_Type,
+        l.Price,
+        l.Sqft,
+        l.Date_Listed,
+        l.Latitude,
+        l.Longitude,
+        
+        a.Agent_ID,
+        a.Commission_Rate,
+        a.Deals_Closed,
+        a.Rating,
+        a.Years_Of_Experience,
+        a.Avg_Closing_Days,
+        
+        s.Sale_Price,
+        s.Date_Sold,
+        s.Days_On_Market
+        
+    from listings l
+    left join agents a
+    on l.Agent_ID = a.Agent_ID
+    left join sales s
+    on l.Listing_ID = s.Listing_ID;
+  """
+  cur.execute(query)
+
 def property_master_query():
-  load_view_table()
+  load_property_view_table()
   query = f"""
     select * from property_master_view
     where (Listed_Price between {filter['Price Range'][0]} and {filter['Price Range'][1]})
@@ -110,3 +146,9 @@ def property_master_query():
 
   return query
 
+def agent_master_query():
+  load_agent_view_table()
+  query = f"""
+    select * from agent_master_view
+  """
+  return query

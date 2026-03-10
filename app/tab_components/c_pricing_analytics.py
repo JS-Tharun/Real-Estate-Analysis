@@ -63,8 +63,7 @@ def avg_price_chart():
     x='City', 
     x_label="City",
     y='Average_Price', 
-    y_label="Price ($)",
-    color='#6ce57f'
+    y_label="Price ($)"
   )
 
 def avg_price():
@@ -97,8 +96,7 @@ def avg_price_per_sqft_chart():
         x='Property_Type',
         y='Avg_Price_Per_Sqft',
         x_label='Property Type',
-        y_label='Price ($)',
-        color='#6ce57f'
+        y_label='Price ($)'
     )
 
 def avg_price_furnishing_status():
@@ -122,8 +120,7 @@ def avg_price_furnishing_status():
         x='Furnishing_Status',
         y='Avg_Price',
         x_label='Furnishing Status',
-        y_label='Price ($)',
-        color='#6ce57f'
+        y_label='Price ($)'
     )
 
 def avg_price_by_metro_distance():
@@ -153,7 +150,7 @@ def avg_price_by_metro_distance():
     df = execute_query(final_query)
     st.write("Avg Price by Metro Distance")
 
-    chart = alt.Chart(df).mark_bar(color="#6ce57f").encode(
+    chart = alt.Chart(df).mark_bar().encode(
         x=alt.X("Metro_Distance_In_KM", title="Distance from Nearest Station (KM)", sort=None),
         y=alt.Y('Avg_Price', title="Price ($)")
     )
