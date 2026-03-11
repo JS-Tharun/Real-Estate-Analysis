@@ -6,6 +6,7 @@ from tab_components.c_geography import listing_by_city_piechart, map, listing_by
 from tab_components.c_data_tables import raw_data
 from tab_components.c_sales_market import monthly_sales_price, monthly_sales_revenue, sale_above_listed_per, monthly_sales_count, sale_to_list_price_chart, avg_days_on_market_chart
 from tab_components.c_agent_performance import agent_sales_amount_chart, low_avg_closing_chart, lowest_closing_table, exp_deals_corr_chart, median_commission_rate, active_listing_chart
+from tab_components.c_buyer_insights import investor_enduser_per_chart, loan_uptake_rate_chart, loan_amount_chart, payment_method_chart
 
 st.set_page_config(
     page_title="Property Analysis",
@@ -20,12 +21,11 @@ st.write("# Real Estate Analytics Dashboard")
 st.caption("This dashboard provides visual insights into real estate market activity using interactive charts and maps.")
 st.caption("Users can filter the dataset to analyze specific segments of the market and uncover trends related to pricing, property types, and sales performance.")
 st.caption("***Note***: Filters do not apply on Agent Performance.")
-tab_overview, tab_pricing_analytics, tab_sales_market, tab_geography, tab_agent_performance, tab_data_tables = st.tabs([
-    "Overview", "Pricing Analytics", "Sales & Market", "Geography", "Agent Performance", "Data Tables"
+tab_overview, tab_pricing_analytics, tab_sales_market, tab_geography, tab_agent_performance, tab_buyer, tab_data_tables = st.tabs([
+    "Overview", "Pricing Analytics", "Sales & Market", "Geography", "Agent Performance", "Buyer Insights", "Data Tables"
 ])
 
 with tab_overview:
-            
     with st.container():
         col1, col2 = st.columns(2, border=True)
         with col1:
@@ -136,6 +136,25 @@ with tab_agent_performance:
     with st.container(border=True):
         active_listing_chart()
     
+with tab_buyer:
+
+    with st.container():
+        col1, col2 = st.columns(2, border=True)
+
+        with col1:
+            loan_uptake_rate_chart()           
+
+        with col2:
+            loan_amount_chart()
+
+    with st.container():
+        col1, col2 = st.columns(2, border=True)
+
+        with col1:
+            investor_enduser_per_chart()
+
+        with col2:
+            payment_method_chart()
 
 with tab_data_tables:
     st.subheader("Raw Data")

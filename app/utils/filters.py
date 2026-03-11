@@ -1,3 +1,4 @@
+from optparse import Option
 from turtle import onclick
 import streamlit as st
 from utils.utils import execute_query
@@ -33,6 +34,12 @@ def property_sidebar_filter():
   agent_filter()
   from_l_date_filter()
   to_l_date_filter()
+
+  st.divider()
+  st.write("### Buyer")
+  buyer_type_filter()
+  payment_method_filter()
+  loan_taken_filter()
 
 def property_type_filter():
   property_types = list(execute_query("select distinct Property_Type from listings order by Property_Type")["Property_Type"])
@@ -184,3 +191,40 @@ def sqft_filter():
     value=(min_sqft, max_sqft)
   )
   filter['Sqft Range'] = selected_sqft_range
+
+def buyer_type_filter():
+  selected_buyer_type = st.selectbox(
+    "Buyer Type",
+    options=['End User', 'Investor'],
+    index=None,
+    placeholder='All'
+  )
+  filter['Buyer Type'] = selected_buyer_type
+
+def payment_method_filter():
+  payment_methods = list(execute_query("select distinct payment_method from buyers")["payment_method"])
+  selected_payment_method = st.selectbox(
+    "Payment Method",
+    options=payment_methods,
+    index=None,
+    placeholder='All'
+  )
+  filter['Payment Method'] = selected_payment_method
+
+def loan_taken_filter():
+    options = {
+        "Yes": True,
+        "No": False
+    }
+
+    selected_loan_taken = st.selectbox(
+        "Loan Taken",
+        options=list(options.keys()),
+        index=None,
+        placeholder='All'
+    )
+
+    if selected_loan_taken is not None:
+        filter["Loan Taken"] = options[selected_loan_taken]
+    else:
+        filter["Loan Taken"] = "All"

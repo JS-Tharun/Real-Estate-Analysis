@@ -79,7 +79,9 @@ def exp_deals_corr_chart():
     st.scatter_chart(
         data=df,
         x='Years_Of_Experience',
-        y='Deals_Closed'
+        y='Deals_Closed',
+        x_label='Years of Experience',
+        y_label='Deals Closed'
     )
 
 def median_commission_rate():
@@ -94,7 +96,7 @@ def median_commission_rate():
     """
     df = execute_query(final_query)
     chart = alt.Chart(df).mark_boxplot(extent='min-max').encode(
-        alt.X("Agent_ID", sort=None).scale(zero=False),
+        alt.X("Agent_ID", title='Agent ID', sort=None).scale(zero=False),
         alt.Y("Commission_Earned", title='Amount ($)')
     )
     st.write("Commission Earned")

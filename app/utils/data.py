@@ -152,3 +152,54 @@ def agent_master_query():
     select * from agent_master_view
   """
   return query
+
+def load_buyer_view_table():
+  conn = get_connection()
+  cur = conn.cursor()
+  cur.execute("drop view if exists buyer_master_view;")
+
+  query = """
+    create view buyer_master_view as
+    select 
+      b.Buyer_ID,
+        b.Listing_ID,
+        b.Buyer_Type,
+        b.Payment_Method,
+        b.Loan_Taken,
+        b.Loan_Provider,
+        b.Loan_Amount,
+        
+        l.City,
+        l.Property_Type,
+        l.Price as Listed_Price,
+        l.Sqft,
+        l.Date_Listed,
+        l.Agent_ID,
+        
+        s.Sale_Price,
+        s.Date_Sold,
+        s.Days_On_Market
+    from buyers b
+    left join listings l
+    on b.Listing_ID = l.Listing_ID
+    left join sales s
+    on l.Listing_ID = s.listing_ID;
+  """
+  cur.execute(query)
+
+def buyer_master_query():
+  load_buyer_view_table()
+  query = """
+    select * from buyer_master_view
+    where 1=1
+  """
+  if filter['Buyer Type'] != None:
+    query += f"AND Buyer_Type = '{filter['Buyer Type']}'"
+
+  if filter['Payment Method'] != None:
+    query += f"AND Payment_Method = '{filter['Payment Method']}'"
+
+  if filter['Loan Taken'] != 'All':
+    query += f"AND Loan_Taken = '{filter['Loan Taken']}'"
+
+  return query
