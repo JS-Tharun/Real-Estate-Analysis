@@ -2,7 +2,7 @@ import streamlit as st
 from utils.utils import execute_query
 from utils.data import property_master_query
 import plotly.express as px
-from tab_components.c_overview import no_of_listings
+from tab_components.Dashboard.c_overview import no_of_listings
 
 
 def map():

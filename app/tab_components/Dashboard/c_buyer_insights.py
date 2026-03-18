@@ -53,17 +53,20 @@ def loan_uptake_rate_chart():
         group by
             City)T2
         on T1.City = T2.City
-        where Loan_Taken = True;
+        where Loan_Taken = 'Yes';
     """
     df = execute_query(final_query)
-    chart = alt.Chart(df).mark_bar().encode(
-        x='City',
-        y='Percentage',
-        tooltip=['City','Percentage','Count']
-    )
     st.write("Loan Uptake Percentage")
     st.caption("Shows the percentage of buyers who take loan")
-    st.altair_chart(chart, use_container_width=True)
+    if filter['Loan Taken'] == 'No':
+        st.write("Clear the loan filter")
+    else:
+        chart = alt.Chart(df).mark_bar().encode(
+            x='City',
+            y='Percentage',
+            tooltip=['City','Percentage','Count']
+        )
+        st.altair_chart(chart, use_container_width=True)     
 
 def loan_amount_chart():
     data_query = buyer_master_query()
@@ -72,20 +75,23 @@ def loan_amount_chart():
             Buyer_Type,
             round(avg(Loan_Amount), 2) as Avg_Loan_Amount
         from ({data_query}) T
-        where loan_taken = True
+        where loan_taken = 'Yes'
         group by
             Buyer_Type;
     """
     df = execute_query(final_query)
     st.write("Average Loan Amount")
     st.caption("Average Loan Amount Taken Based on Buyer Type")
-    st.bar_chart(
-        data=df,
-        x='Buyer_Type',
-        y='Avg_Loan_Amount',
-        x_label='Buyer Type',
-        y_label="Amount ($)"
-    )
+    if filter['Loan Taken'] == 'No':
+        st.write("Clear the loan filter")
+    else:
+        st.bar_chart(
+            data=df,
+            x='Buyer_Type',
+            y='Avg_Loan_Amount',
+            x_label='Buyer Type',
+            y_label="Amount ($)"
+        )
 
 def payment_method_chart():
     data_query = buyer_master_query()

@@ -6,10 +6,6 @@ import math
 
 filter = {}
 
-class Reset:
-  def __init__(self):
-    button = st.button("Reset")
-
 def property_sidebar_filter():
   st.header("Filter Panel")
   st.caption("Narrow the data by price, location, property details, agent, and listing date. All charts and tables below update automatically.")
@@ -212,19 +208,10 @@ def payment_method_filter():
   filter['Payment Method'] = selected_payment_method
 
 def loan_taken_filter():
-    options = {
-        "Yes": True,
-        "No": False
-    }
-
-    selected_loan_taken = st.selectbox(
-        "Loan Taken",
-        options=list(options.keys()),
-        index=None,
-        placeholder='All'
+    selected_loan_taken_filter = st.selectbox(
+      "Loan Taken",
+      options=['Yes', 'No'],
+      index = None,
+      placeholder='All'
     )
-
-    if selected_loan_taken is not None:
-        filter["Loan Taken"] = options[selected_loan_taken]
-    else:
-        filter["Loan Taken"] = "All"
+    filter['Loan Taken'] = selected_loan_taken_filter

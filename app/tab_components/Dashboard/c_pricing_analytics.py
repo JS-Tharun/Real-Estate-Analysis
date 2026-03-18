@@ -197,7 +197,8 @@ def price_bucket_chart():
     """
 
     df = execute_query(final_query)
-    st.write("Property Count by Price")
+    st.write("Price Bucket")
+    st.caption("Shows how properties are distributed across different price ranges")
     chart = alt.Chart(df).mark_bar(color="#D13734").encode(
         x=alt.X("Price_Bucket", title="Price Bucket", sort=None),
         y=alt.Y('Total_Properties', title="Count")

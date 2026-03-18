@@ -165,7 +165,10 @@ def load_buyer_view_table():
         b.Listing_ID,
         b.Buyer_Type,
         b.Payment_Method,
-        b.Loan_Taken,
+        case
+          when b.Loan_Taken is True then 'Yes'
+          when b.Loan_Taken is False then 'No'
+        end as Loan_Taken,
         b.Loan_Provider,
         b.Loan_Amount,
         
@@ -199,7 +202,7 @@ def buyer_master_query():
   if filter['Payment Method'] != None:
     query += f"AND Payment_Method = '{filter['Payment Method']}'"
 
-  if filter['Loan Taken'] != 'All':
+  if filter['Loan Taken'] != None:
     query += f"AND Loan_Taken = '{filter['Loan Taken']}'"
 
   return query

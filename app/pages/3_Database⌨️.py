@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from utils.utils import execute_query, execute_insert
+from tab_components.Database.c_insert import listing_id_exists
 
 st.write("# Database")
 
@@ -15,6 +16,14 @@ with tab_read:
                 query = f"select * from {table_name}"
                 df = execute_query(query)
                 st.dataframe(df)
+
+        options = {
+            'Sold Properties' : 'sales',
+            'Agents': 'agents',
+            'Buyers' : 'buyers',
+            'Listed Properties' : 'listings',
+            'Property Attributes': 'property_attributes'
+        }
 
         table = st.selectbox(
             "Select Table",
@@ -42,7 +51,7 @@ with tab_insert:
 
         if table == 'agents':
 
-            st.write("Fill the Agent Data")
+            st.write("Fill the Agent Details")
             with st.form('add_agent'):
                 id = st.text_input("Agent ID", placeholder="Eg. A1234")
                 email = st.text_input("Email", placeholder="agentid@gmail.com")
@@ -78,6 +87,19 @@ with tab_insert:
                         st.success("Agent Inserted Successfully")
                     else:
                         st.error(f"Insert Failed: {error}")
-                    
+
+        if table == 'listings':
+            st.write("Fill the Property Listing Details")
+            with st.form("add_listing"):
+                listing_id = st.text_input("Listing ID", placeholder='Eg: L00001')
+                agent_id = st.selectbox(
+                    label='Agent ID',
+                    options=list(execute_query("select distinct Agent_ID from agents")['Agent_ID'])
+                )
+                submit = st.form_submit_button("Submit")
+
+                if submit:
+                    if listing_id_exists(listing_id):
+                        st.error("❌ Listing ID already exists")
 
 

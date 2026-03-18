@@ -1,12 +1,12 @@
 import streamlit as st
 from utils.filters import property_sidebar_filter, filter
-from tab_components.c_overview import property_type_count
-from tab_components.c_pricing_analytics import avg_price_chart, avg_price_per_sqft_chart, avg_price_furnishing_status, avg_price_by_metro_distance, median_price_chart, price_bucket_chart
-from tab_components.c_geography import listing_by_city_piechart, map, listing_by_city_barchart, property_distribution_chart_1, property_distribution_chart_2
-from tab_components.c_data_tables import raw_data
-from tab_components.c_sales_market import monthly_sales_price, monthly_sales_revenue, sale_above_listed_per, monthly_sales_count, sale_to_list_price_chart, avg_days_on_market_chart
-from tab_components.c_agent_performance import agent_sales_amount_chart, low_avg_closing_chart, lowest_closing_table, exp_deals_corr_chart, median_commission_rate, active_listing_chart
-from tab_components.c_buyer_insights import investor_enduser_per_chart, loan_uptake_rate_chart, loan_amount_chart, payment_method_chart
+from tab_components.Dashboard.c_overview import property_type_count
+from tab_components.Dashboard.c_pricing_analytics import avg_price_chart, avg_price_per_sqft_chart, avg_price_furnishing_status, avg_price_by_metro_distance, median_price_chart, price_bucket_chart
+from tab_components.Dashboard.c_geography import listing_by_city_piechart, map, listing_by_city_barchart, property_distribution_chart_1, property_distribution_chart_2
+from tab_components.Dashboard.c_data_tables import listing_raw_data, agents_raw_data, buyers_raw_data
+from tab_components.Dashboard.c_sales_market import monthly_sales_price, monthly_sales_revenue, sale_above_listed_per, monthly_sales_count, sale_to_list_price_chart, avg_days_on_market_chart
+from tab_components.Dashboard.c_agent_performance import agent_sales_amount_chart, low_avg_closing_chart, lowest_closing_table, exp_deals_corr_chart, median_commission_rate, active_listing_chart
+from tab_components.Dashboard.c_buyer_insights import investor_enduser_per_chart, loan_uptake_rate_chart, loan_amount_chart, payment_method_chart
 
 st.set_page_config(
     page_title="Property Analysis",
@@ -157,7 +157,13 @@ with tab_buyer:
             payment_method_chart()
 
 with tab_data_tables:
-    st.subheader("Raw Data")
-    raw_data()
+    with st.container(border=True):
+        listing_raw_data()
+
+    with st.container(border=True):
+        agents_raw_data()
+
+    with st.container(border=True):
+        buyers_raw_data()
         
         
