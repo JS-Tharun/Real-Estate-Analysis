@@ -11,11 +11,11 @@ The project aims to build a **Real Estate Listings Dashboard** for buyers and in
 
 For complete Exploratory Data Analysis and Data Visualization, follow the steps:
 
-Pre-Requisites:
+## Pre-Requisites:
 * Code Editor (VSCode) and MySQL Workbench installed in your local system.
 * Create a miniconda python environment and download the libraries listed in [library_requirement.txt](./library_requirement.txt)
 
-Steps:
+### Steps:
 1. Download repository zip file.
 2. Open the repository in the installed code editor.
 4. Open the repository folder in the [notebook.py](./notebook.py) 
