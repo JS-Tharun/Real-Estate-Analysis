@@ -1,5 +1,3 @@
-from optparse import Option
-from turtle import onclick
 import streamlit as st
 from utils.utils import execute_query
 import math
@@ -8,7 +6,7 @@ filter = {}
 
 def property_sidebar_filter():
   st.header("Filter Panel")
-  st.caption("Narrow the data by price, location, property details, agent, and listing date. All charts and tables below update automatically.")
+  st.caption("Narrow the data by price, location, property details, agent, and listing date. All charts and tables will update automatically.")
   price_filter()
   sqft_filter()
   city_filter()

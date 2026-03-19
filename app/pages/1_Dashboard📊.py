@@ -17,7 +17,7 @@ st.set_page_config(
 with st.sidebar:
     property_sidebar_filter()
 
-st.write("# Real Estate Analytics Dashboard")
+st.write("# Real Estate Analytics Dashboard 📊")
 st.caption("This dashboard provides visual insights into real estate market activity using interactive charts and maps.")
 st.caption("Users can filter the dataset to analyze specific segments of the market and uncover trends related to pricing, property types, and sales performance.")
 st.caption("***Note***: Filters do not apply on Agent Performance.")

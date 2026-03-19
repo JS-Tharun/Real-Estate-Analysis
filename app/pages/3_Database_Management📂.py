@@ -1,7 +1,6 @@
 import streamlit as st
-import pandas as pd
 import datetime
-from utils.utils import execute_query, execute_insert, get_connection
+from utils.utils import execute_query, execute_insert, execute_delete
 from tab_components.Database.c_insert import listing_id_exists, generate_listing_id, generate_agent_id
 
 # Session State
@@ -9,19 +8,16 @@ if "visibility" not in st.session_state:
     st.session_state.visibility = "visible"
     st.session_state.disabled = True  
 
-st.write("# Database")
+st.write("# Database 📂")
+st.caption("This page helps with viewing data, adding new data, updating existing data and deleting an existing record from the database.")
 
 tab_read, tab_insert, tab_update, tab_delete = st.tabs([
     "Read Data", "Insert Data", "Update Data", "Delete Data"
 ])
 
-binary_values = {
-    'Yes': True,
-    'No': False
-}
-
 with tab_read:
-    with st.container(border=True):
+    with st.container():
+        st.caption("Select the table which you want to view data records")
         def read_table(table_name):
             if table_name != None:
                 query = f"select * from {table_name}"
@@ -37,26 +33,29 @@ with tab_read:
         }
 
         table = st.selectbox(
-            label="Select Data",
+            label="Data Tables",
             options=["Agents", "Listed Properties", "Sold Properties", "Property Attributes", "Buyers"],
             index=None,
-            placeholder='Choose a table to read',
+            placeholder='Read data from',
             key='read_table'
         )
         
-        st.write("Result Table")
-        if table != None:
-            read_table(options[table])
-        else:
-            st.caption("No Table Selected")
+        with st.container(border=True):
+            
+            if table != None:
+                st.write("Result Table")
+                read_table(options[table])
+            else:
+                st.caption("No Table Selected")
 
 with tab_insert:
     with st.container():
+        st.caption("Select the table in which you want to insert data record")
         table = st.selectbox(
-            "Select Data",
+            "Data Tables",
             ["Agents", "Listed Properties", "Sold Properties", "Property Attributes", "Buyers"],
             index=None,
-            placeholder='Choose a table to insert data in',
+            placeholder='Insert data in',
             key='insert_table'
         )
 
@@ -398,11 +397,12 @@ with tab_insert:
 
 with tab_update:
     with st.container():
+        st.caption("Select the table in which you want to update data record")
         table = st.selectbox(
-            "Select Data",
+            "Data Tables",
             ["Agents", "Listed Properties", "Sold Properties", "Property Attributes", "Buyers"],
             index=None,
-            placeholder='Choose a table to insert data in',
+            placeholder='Update data in',
             key='update_table'
         )
 
@@ -806,7 +806,7 @@ with tab_update:
                                 st.warning("Select Listing ID before submitting")
 
         if table == 'Buyers':
-             with st.container(border=True):
+            with st.container(border=True):
                 st.write("Update Buyer Data")
 
                 buyer_id = st.selectbox(
@@ -899,11 +899,155 @@ with tab_update:
                             st.warning("Select Buyer ID before submitting")
 
 with tab_delete:
-    st.write("Hello")
+    with st.container():
+        st.caption('Select the table from which you want to delete a data record')
+        table = st.selectbox(
+            "Data Tables",
+            ["Agents", "Listed Properties", "Sold Properties", "Property Attributes", "Buyers"],
+            index=None,
+            placeholder='Delete data from',
+            key='delete_table'
+        )
 
+        if table == 'Agents':
+            with st.form('delete_agent'):
+                st.write("### Delete Agent Data")
+                agent_id = st.selectbox(
+                    label='Agent ID',
+                    options=list(execute_query('select Agent_ID from agents')['Agent_ID']),
+                    index=None,
+                    placeholder='Select Agent ID'
+                )
 
+                submit = st.form_submit_button("Submit")
 
+                if submit:
+                    if agent_id:
+                        query = f"""
+                            delete from agents
+                            where Agent_ID = '{agent_id}'
+                        """
+                        success, error = execute_delete(query)
+                        if success:
+                            st.success("Data Deleted Successfully")
 
+                        else:
+                            st.error(f"Deletion Failed: {error}")
+
+                    else:
+                        st.warning("Select the Agent ID")
+
+        if table == "Listed Properties":
+            with st.form('delete_listing'):
+                st.write("### Delete Listed Property Data")
+                listing_id = st.selectbox(
+                    label='Listing ID',
+                    options=list(execute_query('select Listing_ID from listings')['Listing_ID']),
+                    index=None,
+                    placeholder='Select Listing ID'
+                )
+
+                submit = st.form_submit_button("Submit")
+
+                if submit:
+                    if listing_id:
+                        query = f"""
+                            delete from listings
+                            where Listing_ID = '{listing_id}'
+                        """
+                        success, error = execute_delete(query)
+                        if success:
+                            st.success("Data Deleted Successfully")
+
+                        else:
+                            st.error(f"Deletion Failed: {error}")
+
+                    else:
+                        st.warning("Select Listing ID")
+
+        if table == "Sold Properties":
+            with st.form('delete_sales'):
+                st.write("### Delete Sold Property Data")
+                sale_id = st.selectbox(
+                    label='Sale ID',
+                    options=list(execute_query('select Sale_ID from sales')['Sale_ID']),
+                    index=None,
+                    placeholder='Select Sale ID'
+                )
+
+                submit = st.form_submit_button("Submit")
+
+                if submit:
+                    if sale_id:
+                        query = f"""
+                            delete from sales
+                            where Sale_ID = '{sale_id}'
+                        """
+                        success, error = execute_delete(query)
+                        if success:
+                            st.success("Data Deleted Successfully")
+
+                        else:
+                            st.error(f"Deletion Failed: {error}")
+
+                    else:
+                        st.warning("Select Sale ID")
+                    
+        if table == "Property Attributes":
+            with st.form('delete_property_attributes'):
+                st.write("### Delete Property Attributes Data")
+                listing_id = st.selectbox(
+                    label='Listing ID',
+                    options=list(execute_query('select Listing_ID from property_attributes')['Listing_ID']),
+                    index=None,
+                    placeholder='Select Listing ID'
+                )
+
+                submit = st.form_submit_button("Submit")
+
+                if submit:
+                    if listing_id:
+                        query = f"""
+                            delete from property_attributes
+                            where Listing_ID = '{listing_id}'
+                        """
+                        success, error = execute_delete(query)
+                        if success:
+                            st.success("Data Deleted Successfully")
+
+                        else:
+                            st.error(f"Deletion Failed: {error}")
+
+                    else:
+                        st.warning("Select Listing ID")
+
+        if table == "Buyers":
+            with st.form('delete_buyers'):
+                st.write("### Delete Buyer Data")
+                buyer_id = st.selectbox(
+                    label='Buyer ID',
+                    options=list(execute_query('select Buyer_ID from buyers')['Buyer_ID']),
+                    index=None,
+                    placeholder='Select Buyer ID'
+                )
+
+                submit = st.form_submit_button("Submit")
+
+                if submit:
+                    if buyer_id:
+                        query = f"""
+                            delete from buyers
+                            where Buyer_ID = '{buyer_id}'
+                        """
+                        success, error = execute_delete(query)
+                        if success:
+                            st.success("Data Deleted Successfully")
+
+                        else:
+                            st.error(f"Deletion Failed: {error}")
+
+                    else:
+                        st.warning("Select Buyer ID")
 
 
 

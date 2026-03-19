@@ -8,8 +8,8 @@ st.set_page_config(
 
 def main():
     with st.container():
-        st.title("BrickView 🌇🌅")
-        st.write("## Data-Driven Insights for Property Buyers, Investors, and Sales Agents")
+        st.title("BrickView 🌇")
+        st.write("## Data-Driven Insights for Property Buyers, Investors, and Sales Agents ✅")
         st.write("An interactive real estate analytics dashboard that helps analyze:")
         st.markdown("""
             
@@ -47,6 +47,8 @@ def main():
 
             * Sales Agent
 
+            * Buyers
+
             3️⃣ Explore the interactive charts and tables to discover insights.
 
             4️⃣ Identify the top performing agents in the Agents Performance Page.
@@ -65,7 +67,8 @@ def main():
             | ---- | ----------- |
             | Dashboard 📊| Interactive charts and filters to explore real estate trends |
             | SQL Queries 📑| Run predefined SQL queries to analyze data directly |
-            | Data Management ⌨️| Create, update, view, and delete records in database tables |
+            | Data Management 📂| Create, update, view, and delete records in database tables |
+            | Creator Info 🧑‍💻| About the creator of the project |
         """)
 
 if __name__ == "__main__":

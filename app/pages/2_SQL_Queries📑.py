@@ -1,4 +1,3 @@
-from numpy import True_
 import streamlit as st
 from utils.utils import execute_query
 
@@ -7,7 +6,8 @@ st.set_page_config(
     layout='wide'
 )
 
-st.title("Query Statements")
+st.title("Query Statements 📑")
+st.caption("Use the pre-defined queries given below to get instant data insights based on property pricing, sales, agents, and buyers.")
 
 tab_property_pricing, tab_sales_market, tab_agent_performance, tab_buyer = st.tabs(["Property & Pricing Analysis", "Sales & Market Performance", "Agent Performance", "Buyer & Financing Behavior"])
 

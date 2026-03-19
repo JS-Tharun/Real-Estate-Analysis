@@ -37,6 +37,19 @@ def execute_insert(query, values):
     cur.close()
     conn.close()
 
+def execute_delete(query):
+  try:
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(query)
+    conn.commit()
 
+    return True, None
 
+  except mysql.connector.Error as err:
+    return False, err
+
+  finally:
+    cur.close()
+    conn.close()
   
