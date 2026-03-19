@@ -23,5 +23,4 @@ Follow the steps given below to perform EDA and run the streamlit app in your lo
 4. From the repository path, open the terminal and run `cd app` to move into the streamlit app folder.
 5. Again, run `streamlit run introduction.py` to run the streamlit app in your default browser locally.
 
-
-
+Once done, you have a fully functional streamlit app to analyze real estate properties and associated datas.
