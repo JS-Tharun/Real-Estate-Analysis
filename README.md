@@ -16,8 +16,8 @@ Follow the steps given below to perform EDA and run the streamlit app in your lo
 * Code Editor (VSCode) and MySQL Workbench installed in your local system.
 * Create a miniconda python environment and download the libraries listed in [library_requirement.txt](./library_requirement.txt)
 
-### Steps:
+## Steps:
 1. Download repository zip file.
 2. Open the repository in the installed code editor.
-4. Open the repository folder in the [notebook.py](./notebook.py) 
+3. Run all the cells in [notebook.py](./notebook.py) 
 
