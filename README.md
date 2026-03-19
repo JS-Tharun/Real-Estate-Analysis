@@ -27,4 +27,4 @@ Once done, you have a fully functional streamlit app to analyze real estate prop
 
 For SQL queries used in EDA, go to [SQL Queries](./SQL.sql)
 
-For more information, mail to [tharunjs06@gmail.com](https://github.com/langchain-ai/streamlit-agent)
+Connect with [LinkedIn Account](https://linkedin.com/in/tharun-j-s) and DM for more information about the project.
