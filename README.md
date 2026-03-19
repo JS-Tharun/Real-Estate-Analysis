@@ -9,7 +9,7 @@ The project aims to build a **Real Estate Listings Dashboard** for buyers and in
 * Display interactive visuals like maps and bar charts for better understanding.
 * User friendly CRUD database operations.
 
-### For complete Exploratory Data Analysis and Data Visualization, follow the steps:
+# Project Setup and Local Deployment
 
 ## Pre-Requisites:
 * Code Editor (VSCode) and MySQL Workbench installed in your local system.
