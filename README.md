@@ -19,7 +19,7 @@ Follow the steps given below to perform EDA and run the streamlit app in your lo
 ## Steps:
 1. Download repository zip file.
 2. Open the repository in the installed code editor.
-3. Run all the cells in [jupyter notebook](./notebook.py) to create a database locally in MySql.
+3. Run all the cells in [jupyter notebook](./notebook.py) to create a database locally in MySql and perform EDA.
 4. From the repository path, open the terminal and run `cd app` to move into the streamlit app folder.
 5. Again, run `streamlit run introduction.py` to run the streamlit app in your default browser locally.
 
