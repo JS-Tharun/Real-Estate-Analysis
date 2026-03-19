@@ -1,0 +1,10 @@
+altair==6.0.0
+python-dotenv==1.1.0
+matplotlib==3.10.8
+mysql-connector-python==9.5.0
+numpy==2.4.1
+pandas==2.3.3
+plotly==6.6.0
+seaborn==0.13.2
+streamlit==1.53.1
+tabulate==0.9.0
