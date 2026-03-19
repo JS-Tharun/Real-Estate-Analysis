@@ -8,7 +8,7 @@ if "visibility" not in st.session_state:
     st.session_state.visibility = "visible"
     st.session_state.disabled = True  
 
-st.write("# Database 📂")
+st.write("# Database Management 📂")
 st.caption("This page helps with viewing data, adding new data, updating existing data and deleting an existing record from the database.")
 
 tab_read, tab_insert, tab_update, tab_delete = st.tabs([
