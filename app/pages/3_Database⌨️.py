@@ -4,11 +4,21 @@ import datetime
 from utils.utils import execute_query, execute_insert, get_connection
 from tab_components.Database.c_insert import listing_id_exists, generate_listing_id, generate_agent_id
 
+# Session State
+if "visibility" not in st.session_state:
+    st.session_state.visibility = "visible"
+    st.session_state.disabled = True  
+
 st.write("# Database")
 
 tab_read, tab_insert, tab_update, tab_delete = st.tabs([
     "Read Data", "Insert Data", "Update Data", "Delete Data"
 ])
+
+binary_values = {
+    'Yes': True,
+    'No': False
+}
 
 with tab_read:
     with st.container(border=True):
@@ -27,8 +37,8 @@ with tab_read:
         }
 
         table = st.selectbox(
-            label="Select Table",
-            options=["agents", "listings", "sales", "property_attributes", "buyers"],
+            label="Select Data",
+            options=["Agents", "Listed Properties", "Sold Properties", "Property Attributes", "Buyers"],
             index=None,
             placeholder='Choose a table to read',
             key='read_table'
@@ -36,21 +46,21 @@ with tab_read:
         
         st.write("Result Table")
         if table != None:
-            read_table(table)
+            read_table(options[table])
         else:
             st.caption("No Table Selected")
 
 with tab_insert:
     with st.container():
         table = st.selectbox(
-            "Select Table",
-            ["agents", "listings", "sales", "property_attributes", "buyers"],
+            "Select Data",
+            ["Agents", "Listed Properties", "Sold Properties", "Property Attributes", "Buyers"],
             index=None,
             placeholder='Choose a table to insert data in',
             key='insert_table'
         )
 
-        if table == 'agents':
+        if table == 'Agents':
             with st.form('add_agent', enter_to_submit=False):
                 st.write("Fill the Agent Details")
                 agent_id = generate_agent_id()
@@ -92,7 +102,7 @@ with tab_insert:
                     else:
                         st.warning("Enter email and phone number")
 
-        if table == 'listings':            
+        if table == 'Listed Properties':            
             with st.form("add_listing", enter_to_submit=False):
                 st.write("Fill the Property Listing Details")
                 listing_id = generate_listing_id()
@@ -164,8 +174,9 @@ with tab_insert:
                     else:
                         st.warning("Select Listing ID and Agent ID")
 
-        if table == 'sales':
-            with st.form("Sales"):
+        if table == 'Sold Properties':
+            with st.form("add_sales"):
+                st.write("Fill the Sold Property Details")
                 listing_query = f"""
                     select l.listing_id
                     from listings l
@@ -175,7 +186,7 @@ with tab_insert:
                 """
                 listing_id_values = list(execute_query(listing_query)['listing_id'])
                 listing_id = st.selectbox(
-                    label='Listing_ID',
+                    label='Listing ID',
                     options=listing_id_values,
                     index=None,
                     placeholder='Select the Property Listing ID'
@@ -223,13 +234,9 @@ with tab_insert:
                     else:
                         st.warning("Select Listing ID before submitting")
 
-        if table == 'property_attributes':
-            with st.form("Property Attributes"):
-
-                binary_values = {
-                    'Yes': True,
-                    'No': False
-                }
+        if table == 'Property Attributes':
+            with st.form("add_property_attributes"):
+                st.write("Fill the Property Attributes")
 
                 listing_query = """
                     select l.Listing_ID from listings l
@@ -264,13 +271,6 @@ with tab_insert:
                     label='Year Built'
                 )
                 year_built = selected_year_built.year
-
-                selected_is_rented = st.selectbox(
-                    label='Is Rented',
-                    options=['Yes', 'No']
-                )
-
-                is_rented = binary_values[str(selected_is_rented)]
                 
                 tenant_count = st.number_input(
                     label='Tenant Count',
@@ -289,19 +289,11 @@ with tab_insert:
                     min_value=0.00
                 )
 
-                selected_parking_available = st.selectbox(
-                    label='Parking Availability',
-                    options=['Yes','No']
-                )
+                is_rented = st.checkbox("Is Rented")
 
-                parking_available = binary_values[str(selected_parking_available)]
+                parking_available = st.checkbox("Parking Available")
 
-                selected_power_backup = st.selectbox(
-                    label='Power Backup Availability',
-                    options=['Yes','No']
-                )
-
-                power_backup = binary_values[str(selected_power_backup)]
+                power_backup = st.checkbox("Power Backup")
 
                 submit = st.form_submit_button("Submit")
 
@@ -338,25 +330,15 @@ with tab_insert:
                     else:
                         st.warning("Select the Listing ID before submitting")
 
-
-        if table == 'buyers':
+        if table == 'Buyers':
             with st.container(border=True):
                 st.write("Fill the Buyer Details")
-                binary_values = {
-                        'Yes': True,
-                        'No': False
-                    }
-                selected_loan_taken = st.selectbox(
-                    label='Loan Taken',
-                    options=['Yes','No'] 
-                )
-
-                loan_taken = binary_values[str(selected_loan_taken)]
+                loan_taken = st.checkbox("Loan Taken")
 
                 if loan_taken:
                     loan_provider = st.selectbox(
                         label='Loan Provider',
-                        options= list(execute_query('select distinct Loan_Provider from buyers')['Loan_Provider'])
+                        options= list(execute_query('select distinct Loan_Provider from buyers where Loan_Provider != "NA"')['Loan_Provider'])
 
                     )
 
@@ -365,11 +347,11 @@ with tab_insert:
                         min_value=0
                     )
 
-                with st.form("Buyers", border=False):
+                with st.form("add_buyers", border=False):
 
                     listing_id = st.selectbox(
                         label='Listing ID',
-                        options=list(execute_query('select distinct Listing_ID from listings')['Listing_ID']),
+                        options=list(execute_query('select distinct Listing_ID from sales order by Listing_ID')['Listing_ID']),
                         index=None
                     )
 
@@ -413,6 +395,515 @@ with tab_insert:
 
                         else:
                             st.warning('Select the Listing ID before submitting')
+
+with tab_update:
+    with st.container():
+        table = st.selectbox(
+            "Select Data",
+            ["Agents", "Listed Properties", "Sold Properties", "Property Attributes", "Buyers"],
+            index=None,
+            placeholder='Choose a table to insert data in',
+            key='update_table'
+        )
+
+        if table == 'Agents':
+            with st.container(border=True):
+                st.write("Update Agent Data")
+                agent_id = st.selectbox(
+                    label='Agent ID',
+                    options = list(execute_query('select distinct Agent_ID from agents')['Agent_ID']),
+                    index=None,
+                    placeholder='Select Agent ID to update'
+                )
+                
+                update_details = st.multiselect(
+                    label='Details to Update',
+                    options=['Email','Phone','Commission Rate','Deals Closed','Rating','Years Of Experience','Average Closing Days']
+                )
+
+                if len(update_details) != 0:
+                    with st.form("update_agents", border=False):
+                        field_inputs = {}
+
+                        for detail in update_details:
+                            if detail == 'Email':
+                                field_inputs['email'] = st.text_input(
+                                    label='Email Address'
+                                )
+
+                            if detail == 'Phone':
+                                field_inputs['phone'] = st.text_input(
+                                    label="Phone", 
+                                    placeholder='10 Digit number', 
+                                    max_chars=10)
+
+                            if detail == 'Commission Rate':
+                                field_inputs['commission_rate'] = st.slider(
+                                    label="Commission Rate", 
+                                    min_value=0.00,  
+                                    max_value=50.00, 
+                                    format='%0.2f'
+                                )
+
+                            if detail == 'Deals Closed':
+                                field_inputs['deals_closed'] = st.number_input(
+                                    label="Deals Closed", 
+                                    step=1
+                                )
+
+                            if detail == 'Rating':
+                                field_inputs['rating'] = st.slider(
+                                    label="Rating", 
+                                    min_value=0.0, 
+                                    max_value=5.0, 
+                                    format="%0.1f"
+                                )
+
+                            if detail == 'Years Of Experience':
+                                field_inputs['years_of_experience'] = st.number_input(
+                                    label="Years of Experience", 
+                                    min_value=0
+                                )
+
+                            if detail == 'Average Closing Days':
+                                field_inputs['avg_closing_days'] = st.number_input(
+                                    label="Average Closing Days", 
+                                    min_value=0
+                                )
+
+                        submit = st.form_submit_button("Submit")
+
+                        if submit:
+                            if agent_id:
+
+                                old_data = execute_query(f"select * from agents where Agent_ID = '{agent_id}'")
+
+                                set_clause = ", ".join([f"{col} = %s" for col in field_inputs.keys()])
+                                values = tuple(field_inputs.values()) + (agent_id,)
+
+                                query = f"""
+                                    UPDATE agents
+                                    set {set_clause}
+                                    where Agent_ID = %s
+                                """
+
+                                success, error = execute_insert(query, values)
+
+                                if success:
+                                    st.success("Data Updated Successfully")
+                                    st.write('Old Data')    
+                                    st.dataframe(old_data)
+                                    st.write("Updated Data")
+                                    new_data = execute_query(f"select * from agents where Agent_ID = '{agent_id}'")
+                                    st.dataframe(new_data)
+
+                                    
+
+                                else:
+                                    st.error(f"Insert Failed: {error}")
+
+                            else:
+                                st.warning("Select Agent ID before submitting")
+
+        if table == 'Listed Properties':
+            with st.container(border=True):
+                st.write("Update Listing Data")
+
+                listing_id = st.selectbox(
+                    label='Listing ID',
+                    options=list(execute_query('select distinct Listing_ID from listings')['Listing_ID']),
+                    index=None,
+                    placeholder="Select Listing ID"
+                )
+
+                update_details = st.multiselect(
+                    label='Details to Update',
+                    options=['City', 'Property Type', 'Price', 'Sqft', 'Listed Date', 'Agent ID', 'Latitude', 'Longitude']
+                )
+
+                if len(update_details) != 0:
+                    with st.form("update_listings", border=False):
+                        field_inputs = {}
+
+                        for detail in update_details:
+                            if detail == 'City':
+                                field_inputs['City'] = st.selectbox(
+                                    label='City',
+                                    options=list(execute_query('select distinct City from listings')['City']),
+                                    index=None,
+                                    placeholder='Select City'
+                                )
+
+                            if detail == 'Agent ID':
+                                field_inputs['Agent_ID'] = st.selectbox(
+                                    label='Agent ID',
+                                    options=list(execute_query("select distinct Agent_ID from agents")['Agent_ID']),
+                                    index=None
+                                )
+
+                            if detail == 'Property Type':
+                                field_inputs['Property_Type'] = st.selectbox(
+                                    label='Property Type',
+                                    options=list(execute_query("select distinct property_type from listings")['property_type']),
+                                    index=None,
+                                    placeholder='Select Property Type'
+                                )
+
+                            if detail == 'Price':
+                                field_inputs['Price'] = st.number_input(
+                                    label='Listed Price ($)',
+                                    min_value=0
+                                )
+
+                            if detail == 'Sqft':
+                                field_inputs['Sqft'] = st.number_input(
+                                    label='Property Area in Sqft',
+                                    min_value=0
+                                )
+
+                            if detail == 'Listed Date':
+                                field_inputs['Date_Listed'] = st.date_input(
+                                    label='Listed Date',
+                                    min_value=datetime.date(2023, 1, 1),
+                                    max_value='today'
+                                )
+
+                            if detail == 'Latitude':
+                                field_inputs['Latitude'] = st.number_input(
+                                    label='Latitude'
+                                )
+
+                            if detail == 'Longitude':
+                                field_inputs['Longitude'] = st.number_input(
+                                    label='Longitude'
+                                )
+
+                            
+                        submit = st.form_submit_button("Submit")
+
+                        if submit:
+                            if listing_id:
+                                old_data = execute_query(f"select * from listings where LIsting_ID = '{listing_id}'")
+
+                                set_clause = ", ".join([f"{col} = %s" for col in field_inputs.keys()])
+                                values = tuple(field_inputs.values()) + (listing_id,)
+
+                                query = f"""
+                                    UPDATE listings
+                                    set {set_clause}
+                                    where Listing_ID = %s
+                                """
+
+                                success, error = execute_insert(query, values)
+
+                                if success:
+                                    st.success("Data Updated Successfully")
+                                    st.write('Old Data')    
+                                    st.dataframe(old_data)
+                                    st.write("Updated Data")
+                                    new_data = execute_query(f"select * from listings where LIsting_ID = '{listing_id}'")
+                                    st.dataframe(new_data)
+
+                                else:
+                                    st.error(f"Insert Failed: {error}")
+
+                            else:
+                                st.warning("Select Listing ID before submitting")
+            
+        if table == "Sold Properties":
+            with st.container(border=True):
+                st.write("Update Sold Property Data")
+                sale_id = st.selectbox(
+                    label='Sale ID',
+                    options=list(execute_query('select Sale_ID from sales order by Sale_ID')['Sale_ID']),
+                    index = None,
+                    placeholder='Select Sale ID'
+                )
+
+                update_details = st.multiselect(
+                    label='Details to Update',
+                    options=['Listing ID','Sale Price', 'Date Sold', 'Days On Market']
+                )
+
+                if len(update_details) != 0:
+                    with st.form("update_sales", border=False):
+                        field_inputs = {}
+
+                        for detail in update_details:
+                            if detail == 'Listing ID':
+                                listing_query = f"""
+                                    select l.listing_id
+                                    from listings l
+                                    left join sales s
+                                    on l.listing_id = s.listing_id
+                                    where Date_Sold is null;
+                                """
+                                listing_id_values = list(execute_query(listing_query)['listing_id'])
+                                field_inputs['Listing_ID'] = st.selectbox(
+                                    label='Listing ID',
+                                    options=listing_id_values,
+                                    index=None,
+                                    placeholder='Select the Property Listing ID'
+                                )
+
+                            if detail == 'Sale Price':
+                                field_inputs['Sale_Price'] = st.number_input(
+                                    label='Sale Price ($)',
+                                    min_value=0
+                                )
+
+                            if detail == 'Date Sold':
+                                field_inputs['Date_Sold'] = st.date_input(
+                                    label='Date Sold',
+                                    max_value='today'
+                                )
+
+                            if detail == 'Days On Market':
+                                field_inputs['Days_On_Market'] = st.number_input(
+                                'Days on Market',
+                                min_value=0
+                            )
+
+                        submit = st.form_submit_button("Submit")
+
+                        if submit:
+                            if sale_id:
+                                old_data = execute_query(f"select * from sales where Sale_ID = '{sale_id}'")
+
+                                set_clause = ", ".join([f"{col} = %s" for col in field_inputs.keys()])
+                                values = tuple(field_inputs.values()) + (sale_id,)
+
+                                query = f"""
+                                    UPDATE sales
+                                    set {set_clause}
+                                    where Sale_ID = %s
+                                """
+
+                                success, error = execute_insert(query, values)
+
+                                if success:
+                                    st.success("Data Updated Successfully")
+                                    st.write('Old Data')    
+                                    st.dataframe(old_data)
+                                    st.write("Updated Data")
+                                    new_data = execute_query(f"select * from sales where Sale_ID = '{sale_id}'")
+                                    st.dataframe(new_data)
+
+                                else:
+                                    st.error(f"Insert Failed: {error}")
+
+                            else:
+                                st.warning("Select Sale ID before submitting")
+
+        if table == 'Property Attributes':
+            with st.container(border=True):
+                st.write("Update Property Attributes")
+
+                listing_id = st.selectbox(
+                    label="Listing ID",
+                    options= list(execute_query('select Listing_ID from property_attributes')['Listing_ID']),
+                    index=None,
+                    placeholder="Select Property Listing ID"               
+                )
+
+                update_details = st.multiselect(
+                    label='Details to Update',
+                    options=['Bedroom Count','Bathroom Count','Floor Number','Total Floor','Year Built','Is Rented','Tenant Count','Furnishing Status','Metro Distance','Parking Available','Power Backup']
+                )
+
+                if len(update_details) != 0:
+                    with st.form("update_property_attributes", border=False):
+                        field_inputs = {}
+                        for detail in update_details:
+                            if detail == 'Bathroom Count':
+                                field_inputs['Bathroom'] = st.number_input(
+                                    label='Bathroom Count',
+                                    min_value=0
+                                )
+
+                            if detail == 'Bedroom Count':
+                                field_inputs['Bedroom'] = st.number_input(
+                                    label='Bedroom Count',
+                                    min_value=0
+                                )
+                                
+                            if detail == 'Floor Number':
+                                field_inputs['Floor_Number'] = st.number_input(
+                                    label='Floor Number',
+                                    min_value=0
+                                )
+
+                            if detail == 'Total Floor':
+                                field_inputs['Total_Floor'] = st.number_input(
+                                    label='Total Floors',
+                                    min_value=0
+                                )
+
+                            if detail == 'Year Built':
+                                selected_year_built = st.date_input(
+                                    label='Year Built'
+                                )
+                                field_inputs['Year_Built'] = selected_year_built.year
+
+                            if detail == 'Is Rented':
+                                field_inputs['Is_Rented'] = st.checkbox('Is Rented')
+
+                            if detail == 'Tenant Count':
+                                field_inputs['Tenant_Count'] = st.number_input(
+                                    label='Tenant Count',
+                                    min_value=0
+                                )
+
+                            if detail == 'Furnishing Status':
+                                field_inputs['Furnishing_Status'] = st.selectbox(
+                                    label='Furnishing Status',
+                                    options=list(execute_query('select distinct furnishing_status from property_attributes')['furnishing_status']),
+                                    index=None,
+                                    placeholder='Select the furnishing Status'
+                                )
+
+                            if detail == 'Metro Distance':
+                                field_inputs['Metro_Distance'] = st.number_input(
+                                    label='Distance from Nearest Metro Station',
+                                    min_value=0.00
+                                )
+
+                            if detail == 'Parking Available':
+                                field_inputs['Parking_Available'] = st.checkbox("Parking Available")
+
+                            if detail == 'Power Backup':
+                                field_inputs['Power_Backup'] = st.checkbox("Power Backup")
+
+                        submit = st.form_submit_button("Submit")
+
+                        if submit:
+                            if listing_id:
+                                old_data = execute_query(f"select * from property_attributes where Listing_ID = '{listing_id}'")
+
+                                set_clause = ", ".join([f"{col} = %s" for col in field_inputs.keys()])
+
+                                values = tuple(field_inputs.values()) + (listing_id,)
+
+                                query = f"""
+                                    UPDATE property_attributes
+                                    set {set_clause}
+                                    where Listing_ID = %s
+                                """
+                                success, error = execute_insert(query, values)
+
+                                if success:
+                                    st.success("Data Updated Successfully")
+                                    st.write('Old Data')    
+                                    st.dataframe(old_data)
+                                    st.write("Updated Data")
+                                    new_data = execute_query(f"select * from property_attributes where Listing_ID = '{listing_id}'")
+                                    st.dataframe(new_data)
+
+                                else:
+                                    st.error(f"Insert Failed: {error}")
+
+                            else:
+                                st.warning("Select Listing ID before submitting")
+
+        if table == 'Buyers':
+             with st.container(border=True):
+                st.write("Update Buyer Data")
+
+                buyer_id = st.selectbox(
+                    label="Buyer ID",
+                    options=list(execute_query('select Buyer_ID from buyers')['Buyer_ID']),
+                    index=None,
+                    placeholder='Select Buyer ID'
+                )
+
+                update_details = st.multiselect(
+                    label='Details to Update',
+                    options=['Listing ID', 'Buyer Type', 'Payment Method', 'Loan Status']
+                )
+                
+                field_inputs = {}
+                for detail in update_details:
+                    if detail == 'Loan Status':
+                        field_inputs['Loan_Taken'] = st.checkbox("Loan Taken")
+
+                        st.session_state.disabled = not field_inputs['Loan_Taken']
+                        st.session_state.visibility = "visible" if field_inputs['Loan_Taken'] else "hidden"
+
+                        field_inputs['Loan_Provider'] = st.selectbox(
+                            label='Loan Provider',
+                            options=list(execute_query('select distinct Loan_Provider from buyers')['Loan_Provider']),
+                            label_visibility=st.session_state.visibility,
+                            disabled=st.session_state.disabled
+                        )
+
+                        field_inputs['Loan_Amount'] = st.number_input(
+                            label='Loan Amount',
+                            min_value=0,
+                            label_visibility=st.session_state.visibility,
+                            disabled=st.session_state.disabled,
+                        )
+
+                with st.form("update_buyers", border=False):
+                    for detail in update_details:
+                        if detail == 'Listing ID':
+                            field_inputs['Listing_ID'] = st.selectbox(
+                                label='Listing ID',
+                                options=list(execute_query('select distinct Listing_ID from sales order by Listing_ID')['Listing_ID']),
+                                index=None
+                            )
+
+                        if detail == 'Buyer Type':
+                            field_inputs['Buyer_Type'] = st.selectbox(
+                                label='Buyer Type',
+                                options=list(execute_query('select distinct Buyer_Type from buyers')['Buyer_Type']),
+                                index=None
+                            )
+
+                        if detail == 'Payment Method':
+                            field_inputs['Payment_Method'] = st.selectbox(
+                                label='Payment Method',
+                                options=list(execute_query('select distinct Payment_Method from buyers')['Payment_Method']),
+                                index=None
+                            )
+
+                    submit = st.form_submit_button('Submit')
+
+                    if submit:
+                        if buyer_id:
+                            
+                            old_data = execute_query(f"select * from buyers where Buyer_ID = '{buyer_id}'")
+
+                            set_clause = ", ".join([f"{col} = %s" for col in field_inputs.keys()])
+
+                            values = tuple(field_inputs.values()) + (buyer_id,)
+
+                            query = f"""
+                                UPDATE buyers
+                                set {set_clause}
+                                where Buyer_ID = %s
+                            """
+                            success, error = execute_insert(query, values)
+
+                            if success:
+                                st.success("Data Updated Successfully")
+                                st.write('Old Data')    
+                                st.dataframe(old_data)
+                                st.write("Updated Data")
+                                new_data = execute_query(f"select * from buyers where Buyer_ID = '{buyer_id}'")
+                                st.dataframe(new_data)
+
+                            else:
+                                st.error(f"Insert Failed: {error}")
+
+                        else:
+                            st.warning("Select Buyer ID before submitting")
+
+with tab_delete:
+    st.write("Hello")
+
+
+
+
 
 
 
