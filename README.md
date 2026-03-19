@@ -13,7 +13,7 @@ For complete Exploratory Data Analysis and Data Visualization, follow the steps:
 
 Pre-Requisites:
 * Code Editor (VSCode) and MySQL Workbench installed in your local system.
-* Create a miniconda python environment and download the libraries listed in [library]
+* Create a miniconda python environment and download the libraries listed in [library_requirement.txt](./library_requirement.txt)
 
 Steps:
 1. Download repository zip file.
