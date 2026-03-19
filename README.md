@@ -9,5 +9,5 @@ The project aims to build a **Real Estate Listings Dashboard** for buyers and in
 * Display interactive visuals like maps and bar charts for better understanding.
 * User friendly CRUD database operations.
 
-For complete Exploratory Data Analysis ([notebook.py](./notebook.py))
+For complete Exploratory Data Analysis and Data Visualization, use [notebook.py](./notebook.py)
 
