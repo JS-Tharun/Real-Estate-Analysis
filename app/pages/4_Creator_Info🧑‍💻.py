@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.write("# 🧑‍💻Creator of this Project")
+st.write("# 🧑‍💻Creator Info")
 
 col1, col2 = st.columns([1,5])
 
