@@ -10,6 +10,7 @@ The project aims to build a **Real Estate Listings Dashboard** for buyers and in
 * User friendly CRUD database operations.
 
 # Project Setup and Local Deployment
+Follow the steps given below to perform EDA and run the streamlit app in your local computer.
 
 ## Pre-Requisites:
 * Code Editor (VSCode) and MySQL Workbench installed in your local system.
